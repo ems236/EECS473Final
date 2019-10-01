@@ -3,7 +3,7 @@
 #include "osrf_gear/Order.h"
 #include "osrf_gear/Kit.h"
 #include "osrf_gear/StorageUnit.h"
-#include "osrf_gear/GetMaterialLocations"
+#include "osrf_gear/GetMaterialLocations.h"
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -39,20 +39,24 @@ void try_start_competition(ros::ServiceClient& begin_client, ros::Rate* loop_rat
     }
 }
 
-string current_kit_location(&ros::ServiceClient kit_lookup_client)
+string current_kit_location(ros::ServiceClient& kit_lookup_client)
 {
-     
-    osrf_gear::Kit current_kit = current_orders.first().kits.at(current_kit_index);
+    if(current_orders.size() == 0)
+    {
+        return NULL;
+    }
+    
+    osrf_gear::Kit current_kit = current_orders.front().kits.at(current_kit_index);
     osrf_gear::GetMaterialLocations kit_lookup;
     kit_lookup.request.material_type = current_kit.kit_type;
 
     ROS_INFO("Looking up location for kit type %s", current_kit.kit_type.c_str());
-    if(kit_lookup_client.call(current_kit))
+    if(kit_lookup_client.call(kit_lookup))
     {
         //Iterate t
-        for(vector<osrf_gearm::StorageUnit>::iterator current = current_kit.response.storage_units.begin(); current != current_kit.response.storage_units.end(); ++current)
+        for(vector<osrf_gear::StorageUnit>::iterator current = kit_lookup.response.storage_units.begin(); current != kit_lookup.response.storage_units.end(); ++current)
         {
-            ROS_INFO("Found kit type %s in storage unit %s", current_kit.kit_type.c_str(), current->c_string());
+            ROS_INFO("Found kit type %s in storage unit %s", current_kit.kit_type.c_str(), current->unit_id);
         }
     }
     else
@@ -81,12 +85,12 @@ int main(int argc, char** argv)
     ros::Subscriber order_subscriber = node_handle.subscribe("/ariac/orders", 200, new_order_callback);
     
     //Spin slow until competition starts
-    ros::Rate loop_rate(0.2);
+    ros::Rate loop_rate(1);
 
     //Main loop
     while(ros::ok())
     {
-        try_start_competition(&begin_client, &loop_rate)
+        try_start_competition(begin_client, &loop_rate);
         if(has_started_competition)
         {
 

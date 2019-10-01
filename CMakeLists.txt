@@ -110,10 +110,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES ariac_runner
-#  CATKIN_DEPENDS geometry_msgs moveit_core moveit_kinematic moveit_ros_move_group moveit_ros_planning moveit_ros_planning_interface osrf_gear roscpp std_msgs tf_conversions
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES ariac_runner
+  CATKIN_DEPENDS geometry_msgs moveit_core moveit_kinematics moveit_ros_move_group moveit_ros_planning moveit_ros_planning_interface osrf_gear roscpp std_msgs tf_conversions
+  DEPENDS system_lib
 )
 
 ###########
@@ -140,7 +140,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/ariac_runner_node.cpp)
+add_executable(ariac_node src/ariac_runner.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
