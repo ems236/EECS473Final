@@ -41,17 +41,16 @@ void try_start_competition(ros::ServiceClient& begin_client, ros::Rate* loop_rat
 {
     if(!has_started_competition)
     {
-        ROS_INFO("got here ");
+		ROS_INFO("Calling Service...");
         std_srvs::Trigger begin_comp;
         if(begin_client.call(begin_comp))
         {
             ROS_INFO("Service was called");
             if(begin_comp.response.success)
             {
-                ROS_INFO("successful service call");
+                ROS_INFO("Successful service call");
                 has_started_competition = true;
                 *loop_rate = ros::Rate(10);
-                ROS_INFO("successful service call 2");
             }
             else
             {
@@ -78,7 +77,7 @@ void current_kit_location(ros::ServiceClient& kit_lookup_client)
     
     for(vector<osrf_gear::KitObject>::iterator current = current_orders.front().kits.front().objects.begin(); current != current_orders.front().kits.front().objects.end(); ++current)
     {
-        ROS_INFO("kit types: %s", current->type.c_str());
+        ROS_INFO("Kit types: %s", current->type.c_str());
     }
     
     osrf_gear::Kit& current_kit = current_orders.front().kits.at(current_kit_index);
@@ -97,7 +96,6 @@ void current_kit_location(ros::ServiceClient& kit_lookup_client)
         for(vector<osrf_gear::StorageUnit>::iterator current = kit_lookup.response.storage_units.begin(); current != kit_lookup.response.storage_units.end(); ++current)
         {
             ROS_INFO("Found kit type %s in storage unit %s", current_kit.kit_type.c_str(), current->unit_id.c_str());
-            //ROS_INFO("Service replied");
         }
     }
     else
@@ -129,7 +127,7 @@ geometry_msgs::Pose lookup_object_location(string type)
         if(current.type.compare(type) == 0)
         {
             camera_model_index = i;
-            print_pose("object of type" + type, current.pose); 
+            print_pose("Object of type" + type, current.pose); 
             return current.pose;
         }
     }
@@ -173,14 +171,17 @@ geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::M
     ROS_INFO("Converting the logical camera pose to world coordinates.");
     // Retrieve the transformation
     geometry_msgs::TransformStamped tfStamped;
+	
     try 
     {
         string planning_frame = remove_first_char(move_group.getPlanningFrame());
-        ROS_INFO("world frame is %s", planning_frame.c_str());
+        ROS_INFO("World frame is %s", planning_frame.c_str());
+		
         tfStamped = tfBuffer.lookupTransform(
             planning_frame.c_str(),
             "logical_camera_frame", ros::Time(0.0), ros::Duration(1.0)
         );
+		
         ROS_INFO("Transform to [%s] from [%s]", 
             tfStamped.header.frame_id.c_str(),
             tfStamped.child_frame_id.c_str()
@@ -203,9 +204,7 @@ geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::M
 
 void offset_target_position(geometry_msgs::PoseStamped* goal_pose)
 {
-    // Add height to the goal pose.
-    goal_pose->pose.position.z += 0.10; // 10 cm above the part
-    // Tell the end effector to rotate 90 degrees around the y-axis (in quaternions… more on quaternions later in the semester).
+    goal_pose->pose.position.z += 0.10;
     goal_pose->pose.orientation.w = 0.707;
     goal_pose->pose.orientation.x = 0.0;
     goal_pose->pose.orientation.y = 0.707;
@@ -221,8 +220,6 @@ int main(int argc, char** argv)
     tf2_ros::TransformListener tfListener(tfBuffer);
 
     moveit::planning_interface::MoveGroupInterface move_group("manipulator");
-    //string ns = ros::this_node::getNamespace();
-    //ROS_INFO("Detected namespace %s", ns.c_str());
 
     ros::ServiceClient begin_client = node_handle.serviceClient<std_srvs::Trigger>("/ariac/start_competition");
     ros::ServiceClient kit_lookup_client = node_handle.serviceClient<osrf_gear::GetMaterialLocations>("/ariac/material_locations");
@@ -238,29 +235,31 @@ int main(int argc, char** argv)
         if(have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
         {
             geometry_msgs::Pose object_pose_local = lookup_object_location(current_model_type);
+			
             geometry_msgs::PoseStamped object_pose_world = logical_camera_to_world(move_group, tfBuffer, object_pose_local);
             print_pose("Object location in world coordinates", object_pose_world.pose);
+			
             offset_target_position(&object_pose_world);
             print_pose("Object location in world coordinates with offset", object_pose_world.pose);
 
             move_group.setPoseTarget(object_pose_world);
-
-            ros::AsyncSpinner spinner(1);
-            spinner.start();
-
             moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
-            // Create a plan based on the settings (all default settings now) in the_plan.
             ROS_INFO("Starting to plan...");
+			
+			ros::AsyncSpinner spinner(1);
+            spinner.start();
             if(move_group.plan(movement_plan))
             {
-                ROS_INFO("planning successful, trying to execute");
-                // Planning does not always succeed. Check the output.
-                // In the event that the plan was created, execute it.
+                ROS_INFO("Planning successful, trying to execute...");
                 if(move_group.execute(movement_plan))
                 {
-                    ROS_INFO("execution successful. Exitting...");
+                    ROS_INFO("Execution successful. Exitting...");
                     exit(0);
                 }
+				else
+				{
+					ROS_INFO("Execution failed");
+				}
             }
             else
             {
