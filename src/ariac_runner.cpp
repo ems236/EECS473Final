@@ -62,6 +62,7 @@ void current_kit_location(ros::ServiceClient& kit_lookup_client)
 {
     if(is_current_object_known() || current_orders.size() == 0 || current_orders.front().kits.size() == 0)
     {
+        ROS_INFO("There is no need to lookup the current order locaiton again.");
         return;
     }
     
@@ -138,6 +139,7 @@ bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, r
     try_start_competition(begin_client, loop_rate);
     if(has_started_competition)
     {
+        ROS_INFO("Competition is started, looking up orders.");
         current_kit_location(kit_lookup_client);
         return is_current_object_known();
     }
