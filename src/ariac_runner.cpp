@@ -158,7 +158,7 @@ int main(int argc, char** argv)
             current_kit_location(kit_lookup_client);
             if(is_current_object_known())
             {
-                geometry_msgs::Pose& object_pose = lookup_object_location(current_model_type);
+                geometry_msgs::Pose object_pose = lookup_object_location(current_model_type);
             }
         }
         
