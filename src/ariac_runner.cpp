@@ -245,6 +245,9 @@ int main(int argc, char** argv)
 
             move_group.setPoseTarget(object_pose_world);
 
+            ros::AsyncSpinner spinner(1);
+            spinner.start();
+
             moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
             // Create a plan based on the settings (all default settings now) in the_plan.
             ROS_INFO("Starting to plan...");
@@ -263,7 +266,8 @@ int main(int argc, char** argv)
             {
                 ROS_INFO("Planning failed");
             }
-            
+
+            spinner.stop();
         }
 
         //process all callbacks
