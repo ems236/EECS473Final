@@ -24,6 +24,11 @@ int current_kit_object_index = 0;
 string current_model_type = "";
 int camera_model_index = -1;
 
+bool is_current_object_known()
+{
+    return current_model_type.empty();
+}
+
 void try_start_competition(ros::ServiceClient& begin_client, ros::Rate* loop_rate)
 {
     if(!has_started_competition)
@@ -53,11 +58,11 @@ void try_start_competition(ros::ServiceClient& begin_client, ros::Rate* loop_rat
     }
 }
 
-string current_kit_location(ros::ServiceClient& kit_lookup_client)
+void current_kit_location(ros::ServiceClient& kit_lookup_client)
 {
-    if(current_orders.size() == 0 || current_orders.front().kits.size() == 0)
+    if(is_current_object_known() || current_orders.size() == 0 || current_orders.front().kits.size() == 0)
     {
-        return "";
+        return;
     }
     
     ROS_INFO("Order has %d kits", current_orders.front().kits.size());
@@ -67,7 +72,7 @@ string current_kit_location(ros::ServiceClient& kit_lookup_client)
         ROS_INFO("kit types: %s", current->type.c_str());
     }
     
-    osrf_gear::Kit current_kit = current_orders.front().kits.at(current_kit_index);
+    osrf_gear::Kit& current_kit = current_orders.front().kits.at(current_kit_index);
     current_model_type = current_kit.objects.at(current_kit_object_index).type;
     osrf_gear::GetMaterialLocations kit_lookup;
     kit_lookup.request.material_type = current_model_type;
@@ -90,8 +95,6 @@ string current_kit_location(ros::ServiceClient& kit_lookup_client)
     {
         ROS_ERROR("Looking up kit location falied.");
     }
-    
-    return "";
 }
 
 geometry_msgs::Pose lookup_object_location(string type)
@@ -144,7 +147,7 @@ int main(int argc, char** argv)
     ros::Subscriber logical_camera_subscriber = node_handle.subscribe("/ariac/logical_camera", 200, camera_callback);
     
     //Spin slow until competition starts
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(0.2);
 
     //Main loop
     while(ros::ok())
@@ -153,7 +156,10 @@ int main(int argc, char** argv)
         if(has_started_competition)
         {
             current_kit_location(kit_lookup_client);
-            geometry_msgs::Pose object_pose = lookup_object_location(current_model_type);
+            if(is_current_object_known())
+            {
+                geometry_msgs::Pose& object_pose = lookup_object_location(current_model_type);
+            }
         }
         
 
