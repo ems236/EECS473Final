@@ -259,6 +259,11 @@ int main(int argc, char** argv)
                     exit(0);
                 }
             }
+            else
+            {
+                ROS_INFO("Planning failed");
+            }
+            
         }
 
         //process all callbacks
