@@ -160,7 +160,7 @@ bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, r
     return false;
 }
 
-return remove_first_char(string string_val)
+string remove_first_char(string& string_val)
 {
     if(string_val.size() > 1)
     {
