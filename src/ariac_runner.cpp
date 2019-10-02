@@ -177,7 +177,7 @@ geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::M
     }
 
     //Do the actual transform.
-    geomety_msgs::PostStamped local_pose, world_pose;
+    geomety_msgs::PoseStamped local_pose, world_pose;
     local_pose.pose = logical_pose;
 
     tf2::doTransform(local_pose, world_pose, tfStamped);
