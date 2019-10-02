@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   tf_conversions
+  tf2_ros
 )
 
 ## System dependencies are found with CMake's conventions
@@ -112,7 +113,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ariac_runner
-  CATKIN_DEPENDS geometry_msgs moveit_core moveit_kinematics moveit_ros_move_group moveit_ros_planning moveit_ros_planning_interface osrf_gear roscpp std_msgs tf_conversions
+  CATKIN_DEPENDS geometry_msgs moveit_core moveit_kinematics moveit_ros_move_group moveit_ros_planning moveit_ros_planning_interface osrf_gear roscpp std_msgs tf_conversions tf2_ros
   DEPENDS system_lib
 )
 
