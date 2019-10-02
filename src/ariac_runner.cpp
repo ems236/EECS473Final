@@ -167,11 +167,12 @@ geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::M
     geometry_msgs::TransformStamped tfStamped;
     try 
     {
+        ROS_INFO("world frame is %s", move_group.getPlanningFrame().c_str());
         tfStamped = tfBuffer.lookupTransform(
             move_group.getPlanningFrame().c_str(),
             "logical_camera_frame", ros::Time(0.0), ros::Duration(1.0)
         );
-        ROS_DEBUG("Transform to [%s] from [%s]", 
+        ROS_INFO("Transform to [%s] from [%s]", 
             tfStamped.header.frame_id.c_str(),
             tfStamped.child_frame_id.c_str()
         );
