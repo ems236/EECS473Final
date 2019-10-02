@@ -105,7 +105,7 @@ geometry_msgs::Pose lookup_object_location(string type)
             geometry_msgs::Point position = current.pose.position;
             geometry_msgs::Quaternion orientation = current.pose.orientation; 
             ROS_INFO("object of type %s is \r\n at position %f %f %f \r\n and orientation %f %f %f %f", 
-                type.c_string(),
+                type.c_str(),
                 position.x,
                 position.y,
                 position.z,
