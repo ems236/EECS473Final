@@ -201,6 +201,17 @@ geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::M
     return world_pose;
 }
 
+void offset_target_position(geometry_msgs::PoseStamped* goal_pose)
+{
+    // Add height to the goal pose.
+    goal_pose->pose.position.z += 0.10; // 10 cm above the part
+    // Tell the end effector to rotate 90 degrees around the y-axis (in quaternions… more on quaternions later in the semester).
+    goal_pose->pose.orientation.w = 0.707;
+    goal_pose->pose.orientation.x = 0.0;
+    goal_pose->pose.orientation.y = 0.707;
+    goal_pose->pose.orientation.z = 0.0;
+}
+
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "lab_3_ariac");
@@ -229,7 +240,9 @@ int main(int argc, char** argv)
             geometry_msgs::Pose object_pose_local = lookup_object_location(current_model_type);
             geometry_msgs::PoseStamped object_pose_world = logical_camera_to_world(move_group, tfBuffer, object_pose_local);
             print_pose("Object location in world coordinates", object_pose_world.pose);
-            
+            offset_target_position(&object_pose_world);
+            print_pose("Object location in world coordinates with offset", object_pose_world.pose);
+
         }
 
         //process all callbacks
