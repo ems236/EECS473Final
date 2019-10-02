@@ -26,7 +26,7 @@ int camera_model_index = -1;
 
 bool is_current_object_known()
 {
-    return current_model_type.empty();
+    return !current_model_type.empty();
 }
 
 void try_start_competition(ros::ServiceClient& begin_client, ros::Rate* loop_rate)
