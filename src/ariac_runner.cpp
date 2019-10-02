@@ -160,6 +160,14 @@ bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, r
     return false;
 }
 
+return remove_first_char(string string_val)
+{
+    if(string_val.size() > 1)
+    {
+        return string_val.substr(1, string_val.size() - 1);
+    }
+}
+
 geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::MoveGroupInterface& move_group, tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
 {
     ROS_INFO("Converting the logical camera pose to world coordinates.");
@@ -167,9 +175,10 @@ geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::M
     geometry_msgs::TransformStamped tfStamped;
     try 
     {
-        ROS_INFO("world frame is %s", move_group.getPlanningFrame().c_str());
+        string planning_frame = remove_first_char(move_group.getPlanningFrame());
+        ROS_INFO("world frame is %s", planning_frame.c_str());
         tfStamped = tfBuffer.lookupTransform(
-            move_group.getPlanningFrame().c_str(),
+            planning_frame.c_str(),
             "logical_camera_frame", ros::Time(0.0), ros::Duration(1.0)
         );
         ROS_INFO("Transform to [%s] from [%s]", 
