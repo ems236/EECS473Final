@@ -106,6 +106,21 @@ void current_kit_location(ros::ServiceClient& kit_lookup_client)
     }
 }
 
+void print_pose(string message, geometry_msgs::Pose& pose)
+{
+    geometry_msgs::Point position = pose.position;
+    geometry_msgs::Quaternion orientation = pose.orientation;
+    ROS_INFO("%s \r\n at position %f %f %f \r\n and orientation %f %f %f %f", 
+                message.c_str(),
+                position.x,
+                position.y,
+                position.z,
+                orientation.x,
+                orientation.y,
+                orientation.z,
+                orientation.w);
+}
+
 geometry_msgs::Pose lookup_object_location(string type)
 {
     for(int i = 0; camera_data.models.size(); i++)
@@ -114,17 +129,7 @@ geometry_msgs::Pose lookup_object_location(string type)
         if(current.type.compare(type) == 0)
         {
             camera_model_index = i;
-            geometry_msgs::Point position = current.pose.position;
-            geometry_msgs::Quaternion orientation = current.pose.orientation; 
-            ROS_INFO("object of type %s is \r\n at position %f %f %f \r\n and orientation %f %f %f %f", 
-                type.c_str(),
-                position.x,
-                position.y,
-                position.z,
-                orientation.x,
-                orientation.y,
-                orientation.z,
-                orientation.w);
+            print_pose("object of type" + type, current.pose); 
             return current.pose;
         }
     }
@@ -157,6 +162,7 @@ bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, r
 
 geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::MoveGroupInterface& move_group, tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
 {
+    ROS_INFO("Converting the logical camera pose to world coordinates.")
     // Retrieve the transformation
     geometry_msgs::TransformStamped tfStamped;
     try 
@@ -212,7 +218,7 @@ int main(int argc, char** argv)
         {
             geometry_msgs::Pose object_pose_local = lookup_object_location(current_model_type);
             geometry_msgs::PoseStamped object_pose_world = logical_camera_to_world(move_group, tfBuffer, object_pose_local);
-
+            print_pose("Object location in world coordinates", object_pose_world.pose);
             
         }
 
