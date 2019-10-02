@@ -247,12 +247,17 @@ int main(int argc, char** argv)
 
             moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
             // Create a plan based on the settings (all default settings now) in the_plan.
-            move_group.plan(movement_plan);
+            ROS_INFO("Starting to plan...");
             if(move_group.plan(movement_plan))
             {
+                ROS_INFO("planning successful, trying to execute");
                 // Planning does not always succeed. Check the output.
                 // In the event that the plan was created, execute it.
-                move_group.execute(movement_plan);
+                if(move_group.execute(movement_plan))
+                {
+                    ROS_INFO("execution successful. Exitting...");
+                    exit(0);
+                }
             }
         }
 
