@@ -213,7 +213,7 @@ int main(int argc, char** argv)
             geometry_msgs::Pose object_pose_local = lookup_object_location(current_model_type);
             geometry_msgs::PoseStamped object_pose_world = logical_camera_to_world(move_group, tfBuffer, object_pose_local);
 
-
+            
         }
 
         //process all callbacks
