@@ -243,6 +243,14 @@ int main(int argc, char** argv)
             offset_target_position(&object_pose_world);
             print_pose("Object location in world coordinates with offset", object_pose_world.pose);
 
+            move_group.setPoseTarget(object_pose_world);
+
+            moveit::planning_interface::MoveGroupInterface::Plan the_plan;
+            // Create a plan based on the settings (all default settings now) in the_plan.
+            move_group.plan(the_plan);
+            // Planning does not always succeed. Check the output.
+            // In the event that the plan was created, execute it.
+            move_group.execute(the_plan);
         }
 
         //process all callbacks
