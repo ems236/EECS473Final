@@ -11,8 +11,8 @@
 #include "geometry_msgs/Quaternion.h"
 #include "geometry_msgs/PoseStamped.h"
 // MoveIt header files
-#include "moveit/move_group_interface/move_group_interface.h"
-#include "moveit/planning_scene_interface/planning_scene_interface.h"
+//#include "moveit/move_group_interface/move_group_interface.h"
+//#include "moveit/planning_scene_interface/planning_scene_interface.h"
 // Transformation header files
 #include "tf2_ros/transform_listener.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
