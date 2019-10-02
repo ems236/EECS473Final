@@ -162,7 +162,7 @@ bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, r
 
 geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::MoveGroupInterface& move_group, tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
 {
-    ROS_INFO("Converting the logical camera pose to world coordinates.")
+    ROS_INFO("Converting the logical camera pose to world coordinates.");
     // Retrieve the transformation
     geometry_msgs::TransformStamped tfStamped;
     try 
