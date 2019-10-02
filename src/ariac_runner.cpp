@@ -133,6 +133,18 @@ void camera_callback(const osrf_gear::LogicalCameraImage& camera_info)
     camera_data = camera_info;
 }
 
+bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, ros::ServiceClient& kit_lookup_client)
+{
+    try_start_competition(begin_client, &loop_rate);
+    if(has_started_competition)
+    {
+        current_kit_location(kit_lookup_client);
+        return is_current_object_known()
+    }
+
+    return false;
+}
+
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "lab_3_ariac");
@@ -152,16 +164,10 @@ int main(int argc, char** argv)
     //Main loop
     while(ros::ok())
     {
-        try_start_competition(begin_client, &loop_rate);
-        if(has_started_competition)
+        if(have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
         {
-            current_kit_location(kit_lookup_client);
-            if(is_current_object_known())
-            {
-                geometry_msgs::Pose& object_pose = lookup_object_location(current_model_type);
-            }
+            geometry_msgs::Pose& object_pose = lookup_object_location(current_model_type);
         }
-        
 
         //process all callbacks
         ros::spinOnce();
