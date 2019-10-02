@@ -155,7 +155,7 @@ bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, r
     return false;
 }
 
-geometry_msgs::PostStamped logical_camera_to_world(moveit::planning_interface::MoveGroupInterface& move_group, tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
+geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::MoveGroupInterface& move_group, tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
 {
     // Retrieve the transformation
     geometry_msgs::TransformStamped tfStamped;
