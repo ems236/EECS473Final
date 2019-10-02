@@ -245,12 +245,15 @@ int main(int argc, char** argv)
 
             move_group.setPoseTarget(object_pose_world);
 
-            moveit::planning_interface::MoveGroupInterface::Plan the_plan;
+            moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
             // Create a plan based on the settings (all default settings now) in the_plan.
-            move_group.plan(the_plan);
-            // Planning does not always succeed. Check the output.
-            // In the event that the plan was created, execute it.
-            move_group.execute(the_plan);
+            move_group.plan(movement_plan);
+            if(move_group.plan(movement_plan))
+            {
+                // Planning does not always succeed. Check the output.
+                // In the event that the plan was created, execute it.
+                move_group.execute(movement_plan);
+            }
         }
 
         //process all callbacks
