@@ -9,6 +9,14 @@
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/Point.h"
 #include "geometry_msgs/Quaternion.h"
+#include "geometry_msgs/PoseStamped.h"
+// MoveIt header files
+#include "moveit/move_group_interface/move_group_interface.h"
+#include "moveit/planning_scene_interface/planning_scene_interface.h"
+// Transformation header files
+#include "tf2_ros/tranform_listener.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "geometry_msgs/TransformStamped.h"
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -147,11 +155,45 @@ bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, r
     return false;
 }
 
+geometry_msgs::PostStamped logical_camera_to_world(moveit::planning_interface::MoveGroupInterface& move_group, tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
+{
+    // Retrieve the transformation
+    geometry_msgs::TransformStamped tfStamped;
+    try 
+    {
+        tfStamped = tfBuffer.lookupTransform(
+            move_group.getPlanningFrame().c_str(),
+            "logical_camera_frame", ros::Time(0.0), ros::Duration(1.0)
+        );
+        ROS_DEBUG("Transform to [%s] from [%s]", 
+            tfStamped.header.frame_id.c_str(),
+            tfStamped.child_frame_id.c_str()
+        );
+    } 
+    catch (tf2::TransformException &ex) 
+    {
+        ROS_ERROR("%s", ex.what());
+        exit(1);
+    }
+
+    //Do the actual transform.
+    geomety_msgs::PostStamped local_pose, world_pose;
+    local_pose.pose = logical_pose;
+
+    tf2::doTransform(local_pose, world_pose, tfStamped);
+
+    return world_pose;
+}
+
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "lab_3_ariac");
     ros::NodeHandle node_handle;
     
+    tf2_ros::Buffer tfBuffer;
+    tf2_ros::TransformListener tfListener(tfBuffer);
+
+    moveit::planning_interface::MoveGroupInterface move_group("manipulator");
     //string ns = ros::this_node::getNamespace();
     //ROS_INFO("Detected namespace %s", ns.c_str());
 
@@ -168,7 +210,10 @@ int main(int argc, char** argv)
     {
         if(have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
         {
-            geometry_msgs::Pose object_pose = lookup_object_location(current_model_type);
+            geometry_msgs::Pose object_pose_local = lookup_object_location(current_model_type);
+            geometry_msgs::PoseStamped object_pose_world = logical_camera_to_world(move_group, tfBuffer, object_pose_local);
+
+            
         }
 
         //process all callbacks
