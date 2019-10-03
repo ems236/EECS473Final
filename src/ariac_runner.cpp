@@ -160,9 +160,13 @@ bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, r
 
 string remove_first_char(string string_val)
 {
-    if(string_val.size() > 1)
+    if(string_val.size() > 1 && string_val.substr(0, 1).compare("/") == 0)
     {
         return string_val.substr(1, string_val.size() - 1);
+    }
+    else
+    {
+        return string_val;
     }
 }
 
