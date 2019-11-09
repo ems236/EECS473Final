@@ -185,7 +185,7 @@ string remove_first_char(string string_val)
 }
 
 
-geometry_msgs::PoseStamped logical_camera_to_base_link(moveit::planning_interface::MoveGroupInterface& move_group, tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
+geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
 {
     ROS_INFO("Converting the logical camera pose to world coordinates.");
     // Retrieve the transformation
@@ -336,7 +336,7 @@ int main(int argc, char** argv)
         {
             geometry_msgs::Pose object_pose_local = lookup_object_location(current_model_type);
 			
-            geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(move_group, tfBuffer, object_pose_local);
+            geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
             print_pose("Object location in world coordinates", goal_pose.pose);
 
             /*
