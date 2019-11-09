@@ -30,10 +30,11 @@ vector<osrf_gear::Order> current_orders;
 osrf_gear::LogicalCameraImage camera_data;
 sensor_msgs::JointState joint_states;
 
+geometry_msgs::PoseStamped desired_pose;
+
 //Kinemtatics info
 double T_pose[4][4], T_des[4][4];
 double q_pose[6], q_sols[8][6];
-trajectory_msgs::JointTrajectory desired;
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
@@ -183,21 +184,23 @@ string remove_first_char(string string_val)
     }
 }
 
-/*
-geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::MoveGroupInterface& move_group, tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
+
+geometry_msgs::PoseStamped logical_camera_to_base_link(moveit::planning_interface::MoveGroupInterface& move_group, tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
 {
     ROS_INFO("Converting the logical camera pose to world coordinates.");
     // Retrieve the transformation
-    geometry_msgs::TransformStamped tfStamped;
+    geometry_msgs::TransformStamped tf_logical_to_world, tf_world_to_base_link;
 	
     try 
     {
-        string planning_frame = remove_first_char(move_group.getPlanningFrame());
-        ROS_INFO("World frame is %s", planning_frame.c_str());
-		
         tfStamped = tfBuffer.lookupTransform(
-            planning_frame.c_str(),
+            "world",
             "logical_camera_frame", ros::Time(0.0), ros::Duration(1.0)
+        );
+
+        tfStamped = tfBuffer.lookupTransform(
+            "base_link",
+            "world", ros::Time(0.0), ros::Duration(1.0)
         );
 		
         ROS_INFO("Transform to [%s] from [%s]", 
@@ -212,14 +215,15 @@ geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::M
     }
 
     //Do the actual transform.
-    geometry_msgs::PoseStamped local_pose, world_pose;
+    geometry_msgs::PoseStamped local_pose, world_pose, base_link_pose;
     local_pose.pose = logical_pose;
 
     tf2::doTransform(local_pose, world_pose, tfStamped);
+    offset_target_position(world_pose);
+    tf2::doTransform(world_pose, base_link_pose);
 
-    return world_pose;
+    return base_link_pose;
 }
-*/
 
 void offset_target_position(geometry_msgs::PoseStamped* goal_pose)
 {
@@ -243,9 +247,9 @@ void populate_forward_kinematics()
 
 void inverse_desired_pos()
 {
-    T_des[0][3] = desired.pose.position.x;
-    T_des[1][3] = desired.pose.position.y;
-    T_des[2][3] = desired.pose.position.z + 0.3; // above part
+    T_des[0][3] = desired_pose.pose.position.x;
+    T_des[1][3] = desired_pose.pose.position.y;
+    T_des[2][3] = desired_pose.pose.position.z + 0.3; // above part
     T_des[3][3] = 1.0;
     // The orientation of the end effector so that the end effector is down.
     T_des[0][0] = 0.0; T_des[0][1] = -1.0; T_des[0][2] = 0.0;
