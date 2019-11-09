@@ -229,7 +229,7 @@ geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer
     local_pose.pose = logical_pose;
 
     tf2::doTransform(local_pose, world_pose, tf_logical_to_world);
-    offset_target_position(world_pose);
+    offset_target_position(&world_pose);
     tf2::doTransform(world_pose, base_link_pose, tf_world_to_base_link);
 
     return base_link_pose;
