@@ -32,7 +32,7 @@ sensor_msgs::JointState joint_states;
 
 //Kinemtatics info
 double T_pose[4][4], T_des[4][4];
-double q_pose[6], q_des[8][6];
+double q_pose[6], q_sols[8][6];
 trajectory_msgs::JointTrajectory desired;
 
 int current_kit_index = 0;
@@ -253,7 +253,7 @@ void inverse_desired_pos()
     T_des[2][0] = -1.0; T_des[2][1] = 0.0; T_des[2][2] = 0.0;
     T_des[3][0] = 0.0; T_des[3][1] = 0.0; T_des[3][2] = 0.0;
 
-    int num_sols = ur_kinematics::inverse((double *)&T_des, (double *)&q_des);
+    int num_sols = ur_kinematics::inverse((double *)&T_des, (double *)&q_sols);
 
 
     trajectory_msgs::JointTrajectory joint_trajectory;
@@ -289,7 +289,7 @@ void inverse_desired_pos()
     // When to start (immediately upon receipt).
     joint_trajectory.points[0].time_from_start = ros::Duration(0.0);
     // Must select which of the num_sols solution to use. Just start with the first.
-    int q_des_indx = 0;
+    int q_sols_indx = 0;
     // Set the end point for the movement
     joint_trajectory.points[1].positions.resize(joint_trajectory.joint_names.size());
     // Set the linear_arm_actuator_joint from joint_states as it is not part of the inverse kinematics solution.
@@ -297,7 +297,7 @@ void inverse_desired_pos()
     // The actuators are commanded in an odd order, enter the joint positions in the correct positions
     for (int indy = 0; indy < 6; indy++) 
     {
-        joint_trajectory.points[1].positions[indy + 1] = q_des[q_des_indx][indy];
+        joint_trajectory.points[1].positions[indy + 1] = q_sols[q_sols_indx][indy];
     }
     // How long to take for the movement.
     joint_trajectory.points[1].time_from_start = ros::Duration(1.0);
