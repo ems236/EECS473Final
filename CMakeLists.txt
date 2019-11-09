@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf_conversions
   pluginlib
-  ur_kinematics
+  #ur_kinematics
   geometry_msgs
   sensor_msgs
   trajectory_msgs
@@ -111,7 +111,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ariac_runner
-  CATKIN_DEPENDS osrf_gear roscpp std_msgs tf_conversions pluginlib geometry_msgs sensor_msgs trajectory_msgs ur_kinematics
+  CATKIN_DEPENDS osrf_gear roscpp std_msgs tf_conversions pluginlib geometry_msgs sensor_msgs trajectory_msgs
   DEPENDS system_lib
 )
 
