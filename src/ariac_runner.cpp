@@ -331,17 +331,15 @@ int main(int argc, char** argv)
     //Main loop
     while(ros::ok())
     {
-        /*
+        
         if(have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
         {
             geometry_msgs::Pose object_pose_local = lookup_object_location(current_model_type);
 			
-            geometry_msgs::PoseStamped object_pose_world = logical_camera_to_world(move_group, tfBuffer, object_pose_local);
-            print_pose("Object location in world coordinates", object_pose_world.pose);
-			
-            offset_target_position(&object_pose_world);
-            print_pose("Object location in world coordinates with offset", object_pose_world.pose);
+            geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(move_group, tfBuffer, object_pose_local);
+            print_pose("Object location in world coordinates", goal_pose.pose);
 
+            /*
             move_group.setPoseTarget(object_pose_world);
             //moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
             ROS_INFO("Starting to plan...");
@@ -367,8 +365,8 @@ int main(int argc, char** argv)
             }
 
             spinner.stop();
+            */
         }
-        */
         //process all callbacks
         ros::spinOnce();
         loop_rate.sleep();
