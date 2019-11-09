@@ -8,16 +8,13 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  moveit_core
-  moveit_kinematics
-  moveit_ros_move_group
-  moveit_ros_planning
-  moveit_ros_planning_interface
   osrf_gear
   roscpp
   std_msgs
   tf_conversions
+  pluginlib
+  ur_kinematics
+  geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -112,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ariac_runner
-  CATKIN_DEPENDS geometry_msgs moveit_core moveit_kinematics moveit_ros_move_group moveit_ros_planning moveit_ros_planning_interface osrf_gear roscpp std_msgs tf_conversions
+  CATKIN_DEPENDS osrf_gear roscpp std_msgs tf_conversions pluginlib ur_kinematics geometry_msgs
   DEPENDS system_lib
 )
 
