@@ -16,7 +16,7 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "geometry_msgs/TransformStamped.h"
 #include "sensor_msgs/JointState.h"
-#include "ur_kinematics/ur_kin.h" 
+//#include "ur_kinematics/ur_kin.h" 
 #include "trajectory_msgs/JointTrajectory.h"
 
 #include <cstdlib>
