@@ -78,15 +78,15 @@ void current_kit_location(ros::ServiceClient& kit_lookup_client)
 {
     if(is_current_object_known() || current_orders.size() == 0 || current_orders.front().kits.size() == 0)
     {
-        ROS_INFO("There is no need to lookup the current order locaiton again.");
+        //ROS_INFO("There is no need to lookup the current order locaiton again.");
         return;
     }
     
-    ROS_INFO("Order has %d kits", current_orders.front().kits.size());
+    //ROS_INFO("Order has %d kits", current_orders.front().kits.size());
     
     for(vector<osrf_gear::KitObject>::iterator current = current_orders.front().kits.front().objects.begin(); current != current_orders.front().kits.front().objects.end(); ++current)
     {
-        ROS_INFO("Kit types: %s", current->type.c_str());
+        //ROS_INFO("Kit types: %s", current->type.c_str());
     }
     
     osrf_gear::Kit& current_kit = current_orders.front().kits.at(current_kit_index);
@@ -95,7 +95,7 @@ void current_kit_location(ros::ServiceClient& kit_lookup_client)
     kit_lookup.request.material_type = current_model_type;
     
     
-    ROS_INFO("Looking up location for kit type %s", current_kit.kit_type.c_str());
+    //ROS_INFO("Looking up location for kit type %s", current_kit.kit_type.c_str());
     if(kit_lookup_client.call(kit_lookup))
     {
         //Iterate t
@@ -164,7 +164,7 @@ bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, r
     try_start_competition(begin_client, loop_rate);
     if(has_started_competition)
     {
-        ROS_INFO("Competition is started, looking up orders.");
+        //ROS_INFO("Competition is started, looking up orders.");
         current_kit_location(kit_lookup_client);
         return is_current_object_known();
     }
@@ -195,7 +195,7 @@ void offset_target_position(geometry_msgs::PoseStamped* goal_pose)
 
 geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
 {
-    ROS_INFO("Converting the logical camera pose to world coordinates.");
+    //ROS_INFO("Converting the logical camera pose to world coordinates.");
     // Retrieve the transformation
     geometry_msgs::TransformStamped tf_logical_to_world, tf_world_to_base_link;
 	
@@ -343,7 +343,7 @@ int main(int argc, char** argv)
             geometry_msgs::Pose object_pose_local = lookup_object_location(current_model_type);
 			
             geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
-            print_pose("Object location in world coordinates", goal_pose.pose);
+            print_pose("Object location in base_link", goal_pose.pose);
 
             /*
             move_group.setPoseTarget(object_pose_world);
