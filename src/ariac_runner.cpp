@@ -1,3 +1,4 @@
+/*
 #include "ros/ros.h"
 #include "std_srvs/Trigger.h"
 #include "osrf_gear/Order.h"
@@ -204,7 +205,7 @@ geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::M
 
     return world_pose;
 }
-*/
+
 
 void offset_target_position(geometry_msgs::PoseStamped* goal_pose)
 {
@@ -280,3 +281,4 @@ int main(int argc, char** argv)
     
     return 0;   
 }
+*/
