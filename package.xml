@@ -57,6 +57,7 @@
   <build_depend>control_msgs</build_depend>
   <build_depend>ur_kinematics</build_depend>
   <build_depend>pluginlib</build_depend>
+  <build_depend>sensor_msgs</build_depend>
 
   <build_export_depend>geometry_msgs</build_export_depend>
   <build_export_depend>osrf_gear</build_export_depend>
@@ -66,6 +67,7 @@
   <build_export_depend>control_msgs</build_export_depend>
   <build_export_depend>ur_kinematics</build_export_depend>
   <build_export_depend>pluginlib</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
 
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>osrf_gear</exec_depend>
@@ -75,6 +77,7 @@
   <exec_depend>control_msgs</exec_depend>
   <exec_depend>ur_kinematics</exec_depend>
   <exec_depend>pluginlib</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
