@@ -11,8 +11,6 @@
 #include "geometry_msgs/Quaternion.h"
 #include "geometry_msgs/PoseStamped.h"
 // MoveIt header files
-#include "moveit/move_group_interface/move_group_interface.h"
-//#include "moveit/planning_scene_interface/planning_scene_interface.h"
 // Transformation header files
 #include "tf2_ros/transform_listener.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
@@ -170,6 +168,7 @@ string remove_first_char(string string_val)
     }
 }
 
+/*
 geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::MoveGroupInterface& move_group, tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
 {
     ROS_INFO("Converting the logical camera pose to world coordinates.");
@@ -205,6 +204,7 @@ geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::M
 
     return world_pose;
 }
+*/
 
 void offset_target_position(geometry_msgs::PoseStamped* goal_pose)
 {
@@ -223,7 +223,7 @@ int main(int argc, char** argv)
     tf2_ros::Buffer tfBuffer;
     tf2_ros::TransformListener tfListener(tfBuffer);
 
-    moveit::planning_interface::MoveGroupInterface move_group("manipulator");
+    //moveit::planning_interface::MoveGroupInterface move_group("manipulator");
 
     ros::ServiceClient begin_client = node_handle.serviceClient<std_srvs::Trigger>("/ariac/start_competition");
     ros::ServiceClient kit_lookup_client = node_handle.serviceClient<osrf_gear::GetMaterialLocations>("/ariac/material_locations");
@@ -247,7 +247,7 @@ int main(int argc, char** argv)
             print_pose("Object location in world coordinates with offset", object_pose_world.pose);
 
             move_group.setPoseTarget(object_pose_world);
-            moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
+            //moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
             ROS_INFO("Starting to plan...");
 			
 			ros::AsyncSpinner spinner(1);
