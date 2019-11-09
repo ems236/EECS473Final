@@ -1,4 +1,3 @@
-/*
 #include "ros/ros.h"
 #include "std_srvs/Trigger.h"
 #include "osrf_gear/Order.h"
@@ -16,15 +15,20 @@
 #include "tf2_ros/transform_listener.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "geometry_msgs/TransformStamped.h"
+#include "sensor_msgs/JointState.h"
+#include "ur_kinematics/ur_kin.h" 
+
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 
 bool has_started_competition = false;
 vector<osrf_gear::Order> current_orders;
 osrf_gear::LogicalCameraImage camera_data;
+map<string, sensor_msgs::JointState> joint_states;
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
@@ -144,6 +148,11 @@ void camera_callback(const osrf_gear::LogicalCameraImage& camera_info)
     camera_data = camera_info;
 }
 
+void joint_state_listener(const sensor_msgs::JointState& joint_state)
+{
+    joint_states[joint_state.name] = joint_state;
+}
+
 bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, ros::ServiceClient& kit_lookup_client)
 {
     try_start_competition(begin_client, loop_rate);
@@ -205,7 +214,7 @@ geometry_msgs::PoseStamped logical_camera_to_world(moveit::planning_interface::M
 
     return world_pose;
 }
-
+*/
 
 void offset_target_position(geometry_msgs::PoseStamped* goal_pose)
 {
@@ -230,6 +239,7 @@ int main(int argc, char** argv)
     ros::ServiceClient kit_lookup_client = node_handle.serviceClient<osrf_gear::GetMaterialLocations>("/ariac/material_locations");
     ros::Subscriber order_subscriber = node_handle.subscribe("/ariac/orders", 200, new_order_callback);
     ros::Subscriber logical_camera_subscriber = node_handle.subscribe("/ariac/logical_camera", 200, camera_callback);
+    ros::Subscriber joint_state_subscriber = node_handle.subscribe("/ariac/joint_states", 200, joint_state_listener);
     
     //Spin slow until competition starts
     ros::Rate loop_rate(0.2);
@@ -237,6 +247,7 @@ int main(int argc, char** argv)
     //Main loop
     while(ros::ok())
     {
+        /*
         if(have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
         {
             geometry_msgs::Pose object_pose_local = lookup_object_location(current_model_type);
@@ -273,7 +284,7 @@ int main(int argc, char** argv)
 
             spinner.stop();
         }
-
+        */
         //process all callbacks
         ros::spinOnce();
         loop_rate.sleep();
@@ -281,4 +292,3 @@ int main(int argc, char** argv)
     
     return 0;   
 }
-*/
