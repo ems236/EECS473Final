@@ -184,6 +184,14 @@ string remove_first_char(string string_val)
     }
 }
 
+void offset_target_position(geometry_msgs::PoseStamped* goal_pose)
+{
+    goal_pose->pose.position.z += 0.10;
+    goal_pose->pose.orientation.w = 0.707;
+    goal_pose->pose.orientation.x = 0.0;
+    goal_pose->pose.orientation.y = 0.707;
+    goal_pose->pose.orientation.z = 0.0;
+}
 
 geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
 {
@@ -193,20 +201,22 @@ geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer
 	
     try 
     {
-        tfStamped = tfBuffer.lookupTransform(
+        tf_logical_to_world = tfBuffer.lookupTransform(
             "world",
             "logical_camera_frame", ros::Time(0.0), ros::Duration(1.0)
         );
 
-        tfStamped = tfBuffer.lookupTransform(
+        tf_world_to_base_link = tfBuffer.lookupTransform(
             "base_link",
             "world", ros::Time(0.0), ros::Duration(1.0)
         );
 		
+        /*
         ROS_INFO("Transform to [%s] from [%s]", 
             tfStamped.header.frame_id.c_str(),
-            tfStamped.child_frame_id.c_str()
+            tf_world_to_base_link.child_frame_id.c_str()
         );
+        */
     } 
     catch (tf2::TransformException &ex) 
     {
@@ -225,17 +235,10 @@ geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer
     return base_link_pose;
 }
 
-void offset_target_position(geometry_msgs::PoseStamped* goal_pose)
-{
-    goal_pose->pose.position.z += 0.10;
-    goal_pose->pose.orientation.w = 0.707;
-    goal_pose->pose.orientation.x = 0.0;
-    goal_pose->pose.orientation.y = 0.707;
-    goal_pose->pose.orientation.z = 0.0;
-}
 
 void populate_forward_kinematics()
 {
+    /*
     q_pose[0] = joint_states.position[1];
     q_pose[1] = joint_states.position[2];
     q_pose[2] = joint_states.position[3];
@@ -243,10 +246,12 @@ void populate_forward_kinematics()
     q_pose[4] = joint_states.position[5];
     q_pose[5] = joint_states.position[6];
     ur_kinematics::forward((float *)&q_pose, (double *)&T_pose);
+    */
 }
 
 void inverse_desired_pos()
 {
+    /*
     T_des[0][3] = desired_pose.pose.position.x;
     T_des[1][3] = desired_pose.pose.position.y;
     T_des[2][3] = desired_pose.pose.position.z + 0.3; // above part
@@ -307,6 +312,7 @@ void inverse_desired_pos()
     joint_trajectory.points[1].time_from_start = ros::Duration(1.0);
     // Publish the specified trajectory.
     joint_trajectories.publish(joint_trajectory);
+    */
 }
 
 int main(int argc, char** argv)
