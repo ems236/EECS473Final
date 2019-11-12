@@ -245,7 +245,7 @@ void populate_forward_kinematics()
     q_pose[3] = joint_states.position[4];
     q_pose[4] = joint_states.position[5];
     q_pose[5] = joint_states.position[6];
-    ur_kinematics::forward((float *)&q_pose, (double *)&T_pose);
+    ur_kinematics::forward((double *)&q_pose, (double *)&T_pose);
     
 }
 
@@ -262,7 +262,7 @@ void inverse_desired_pos()
     T_des[2][0] = -1.0; T_des[2][1] = 0.0; T_des[2][2] = 0.0;
     T_des[3][0] = 0.0; T_des[3][1] = 0.0; T_des[3][2] = 0.0;
 
-    int num_sols = ur_kinematics::inverse((float *)&T_des, (double *)&q_sols);
+    int num_sols = ur_kinematics::inverse((double *)&T_des, (double *)&q_sols);
 
 
     trajectory_msgs::JointTrajectory joint_trajectory;
