@@ -326,7 +326,7 @@ void inverse_desired_pos()
     // Set the end point for the movement
     joint_trajectory.points[1].positions.resize(joint_trajectory.joint_names.size());
     // Set the linear_arm_actuator_joint from joint_states as it is not part of the inverse kinematics solution.
-    joint_trajectory.points[1].positions[0] = joint_states.position[1];
+    joint_trajectory.points[1].positions[0] = joint_state_map["linear_arm_actuator_joint"];
     // The actuators are commanded in an odd order, enter the joint positions in the correct positions
     for (int indy = 0; indy < 6; indy++) 
     {
