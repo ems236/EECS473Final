@@ -16,7 +16,7 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "geometry_msgs/TransformStamped.h"
 #include "sensor_msgs/JointState.h"
-//#include "ur_kinematics/ur_kin.h" 
+#include "ur_kinematics/ur_kin.h" 
 #include "trajectory_msgs/JointTrajectory.h"
 
 #include <cstdlib>
@@ -238,7 +238,7 @@ geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer
 
 void populate_forward_kinematics()
 {
-    /*
+    
     q_pose[0] = joint_states.position[1];
     q_pose[1] = joint_states.position[2];
     q_pose[2] = joint_states.position[3];
@@ -246,12 +246,12 @@ void populate_forward_kinematics()
     q_pose[4] = joint_states.position[5];
     q_pose[5] = joint_states.position[6];
     ur_kinematics::forward((float *)&q_pose, (double *)&T_pose);
-    */
+    
 }
 
 void inverse_desired_pos()
 {
-    /*
+    
     T_des[0][3] = desired_pose.pose.position.x;
     T_des[1][3] = desired_pose.pose.position.y;
     T_des[2][3] = desired_pose.pose.position.z + 0.3; // above part
@@ -312,7 +312,7 @@ void inverse_desired_pos()
     joint_trajectory.points[1].time_from_start = ros::Duration(1.0);
     // Publish the specified trajectory.
     joint_trajectories.publish(joint_trajectory);
-    */
+    
 }
 
 int main(int argc, char** argv)
