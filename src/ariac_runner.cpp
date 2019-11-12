@@ -298,7 +298,8 @@ void apply_solution_constraints(int num_sols)
         }
     }
 
-    best_solution = q_sols[best_index];
+    //best_solution = q_sols[best_index];
+    best_solution = q_sols[0];    
 }
 
 void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
