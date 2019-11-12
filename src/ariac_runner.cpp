@@ -376,7 +376,7 @@ int main(int argc, char** argv)
                     inverse_desired_pos(goal_pose);
                     move_to_best_position(trajectory_publisher);
 
-                    return 0;
+                     ros::Duration(1).sleep();
                 }
             }
 
