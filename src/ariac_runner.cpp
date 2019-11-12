@@ -289,9 +289,9 @@ void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_m
 {
     trajectory_msgs::JointTrajectory joint_trajectory;
     // Fill out the joint trajectory header.
-    trajectory_action.header.seq = sequence_number++; // Each joint trajectory should have anincremented sequence number
-    trajectory_action.header.stamp = ros::Time::now(); // When was this messagecreated.
-    trajectory_action.header.frame_id = "/world"; // Frame in which this is specified.
+    trajectory_action.action_goal.header.seq = sequence_number++; // Each joint trajectory should have anincremented sequence number
+    trajectory_action.action_goal.header.stamp = ros::Time::now(); // When was this messagecreated.
+    trajectory_action.action_goal.header.frame_id = "/world"; // Frame in which this is specified.
     // Set the names of the joints being used. All must be present.
     joint_trajectory.joint_names.clear();
     joint_trajectory.joint_names.push_back("linear_arm_actuator_joint");
@@ -365,9 +365,6 @@ int main(int argc, char** argv)
     actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>trajectory_as("ariac/arm/follow_joint_trajectory", true);
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
 
-    
-    // Create the structure to populate for running the Action Server.
-    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     // It is possible to reuse the JointTrajectory from above
     
     // The header and goal (not the tolerances) of the action must be filled out as well.
@@ -395,7 +392,7 @@ int main(int argc, char** argv)
                     inverse_desired_pos(goal_pose);
                     move_to_best_position(joint_trajectory_as);
                     
-                    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_traj_as.action_goal.goal, ros::Duration(30.0), ros::Duration(30.0));
+                    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(30.0));
                     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
                 }
             }
