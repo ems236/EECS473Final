@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   sensor_msgs
   trajectory_msgs
+  actionlib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -111,7 +112,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ariac_runner
-  CATKIN_DEPENDS osrf_gear roscpp std_msgs tf_conversions pluginlib geometry_msgs sensor_msgs trajectory_msgs ur_kinematics
+  CATKIN_DEPENDS osrf_gear roscpp std_msgs tf_conversions pluginlib geometry_msgs sensor_msgs trajectory_msgs ur_kinematics actionlib
   DEPENDS system_lib
 )
 

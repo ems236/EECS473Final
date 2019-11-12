@@ -362,8 +362,7 @@ int main(int argc, char** argv)
 
     //Main loop
     while(ros::ok())
-    {
-        
+    {    
         if(have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
         {
             for(int logical_object_index = 0; logical_object_index < camera_data.models.size(); logical_object_index++)
