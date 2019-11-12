@@ -36,7 +36,7 @@ map<string, float> joint_state_map;
 //Kinemtatics info
 double T_pose[4][4], T_des[4][4];
 double q_pose[6], q_sols[8][6];
-double best_solution[6];
+double* best_solution;
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
