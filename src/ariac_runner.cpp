@@ -22,13 +22,16 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 
 bool has_started_competition = false;
 vector<osrf_gear::Order> current_orders;
 osrf_gear::LogicalCameraImage camera_data;
-sensor_msgs::JointState joint_states;
+//sensor_msgs::JointState joint_states;
+
+map<string, float> joint_state_map;
 
 geometry_msgs::PoseStamped desired_pose;
 
@@ -167,7 +170,10 @@ void camera_callback(const osrf_gear::LogicalCameraImage& camera_info)
 
 void joint_state_listener(const sensor_msgs::JointState& joint_state)
 {
-    joint_states = joint_state;
+    for(int joint_index = 0; joint_index < joint_state.name.size(); joint_index++)
+    {
+        joint_state_map[joint_state.name[joint_index]] = joint_state.position[joint_index];
+    }
 }
 
 bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, ros::ServiceClient& kit_lookup_client)
@@ -250,12 +256,12 @@ geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer
 void populate_forward_kinematics()
 {
     
-    q_pose[0] = joint_states.position[1];
-    q_pose[1] = joint_states.position[2];
-    q_pose[2] = joint_states.position[3];
-    q_pose[3] = joint_states.position[4];
-    q_pose[4] = joint_states.position[5];
-    q_pose[5] = joint_states.position[6];
+    q_pose[0] = joint_state_map["shoulder_pan_joint"];
+    q_pose[1] = joint_state_map["shoulder_lift_joint"];
+    q_pose[2] = joint_state_map["elbow_joint"];
+    q_pose[3] = joint_state_map["wrist_1_joint"];
+    q_pose[4] = joint_state_map["wrist_2_joint"];
+    q_pose[5] = joint_state_map["wrist_3_joint"];
     ur_kinematics::forward((double *)&q_pose, (double *)&T_pose);
     
 }
