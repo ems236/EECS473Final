@@ -271,11 +271,11 @@ void populate_forward_kinematics()
     
 }
 
-void apply_solution_contstraints()
+void apply_solution_constraints()
 {
     int best_index = 0;
     int best_heuristic_count = 0;
-    for(int solution_index = 0; solution_index < 8; solution_idex++)
+    for(int solution_index = 0; solution_index < 8; solution_index++)
     {
         int heuristics_satisfied = 0;
         for(int angle_index = 0; angle_index < 6; angle_index++)
@@ -286,14 +286,14 @@ void apply_solution_contstraints()
             }
         }
 
-        if(hueristics_satisfied > best_heuristic_count)
+        if(heuristics_satisfied > best_heuristic_count)
         {
             best_index = solution_index;
             best_heuristic_count = heuristics_satisfied;
         }
     }
 
-    best_solution = q_sols[best_heuristic];
+    best_solution = q_sols[best_heuristic_count];
 }
 
 void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
