@@ -146,11 +146,11 @@ geometry_msgs::Pose lookup_next_object(int index)
 {
     if(index < camera_data.models.size())
     {
-        osrf_gear::Model current = camera_data.models.at(i);
+        osrf_gear::Model current = camera_data.models.at(index);
         return current.pose;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void new_order_callback(const osrf_gear::Order::ConstPtr& new_order)
