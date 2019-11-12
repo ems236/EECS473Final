@@ -275,12 +275,15 @@ void apply_solution_constraints(int num_sols)
 {
     int best_index = 0;
     int best_heuristic_count = 0;
+
+    float lowerBounds[6] = {-1.0f * PI / 2.0f, PI / 2.0f, -1.0f * PI / 2.0f, PI / 2.0f, PI / 2.0f, PI / 2.0f};
+    float higherBound[6] = {PI / 2.0f, 3.0f * PI / 2.0f, PI / 2.0f, 3.0f * PI / 2.0f, 3.0f * PI / 2.0f, 3.0f * PI / 2.0f};
     for(int solution_index = 0; solution_index < num_sols; solution_index++)
     {
         int heuristics_satisfied = 0;
         for(int angle_index = 0; angle_index < 6; angle_index++)
         {
-            if(-1.0f * PI / 2.0f < q_sols[solution_index][angle_index] && q_sols[solution_index][angle_index] < PI / 2.0f)
+            if(lowerBounds[solution_index] < q_sols[solution_index][angle_index] && q_sols[solution_index][angle_index] < higherBoundp[solution_index])
             {
                 heuristics_satisfied++;
             }
