@@ -300,8 +300,13 @@ void inverse_desired_pos()
     joint_trajectory.points.resize(2);
     // Set the start point to the current position of the joints from joint_states.
     joint_trajectory.points[0].positions.resize(joint_trajectory.joint_names.size());
+
+    
     for (int indy = 0; indy < joint_trajectory.joint_names.size(); indy++) 
     {
+        string current_name = joint_trajectory.joint_names[indy];
+        joint_trajectory.points[0].positions[indy] = joint_state_map[current_name];
+        /*
         for (int indz = 0; indz < joint_states.name.size(); indz++) 
         {
             if (joint_trajectory.joint_names[indy] == joint_states.name[indz]) 
@@ -310,7 +315,9 @@ void inverse_desired_pos()
                 break;
             }
         }
+        */
     }
+    
 
     // When to start (immediately upon receipt).
     joint_trajectory.points[0].time_from_start = ros::Duration(0.0);
