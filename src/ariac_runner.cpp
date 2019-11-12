@@ -28,6 +28,8 @@
 #include <vector>
 #include <map>
 
+#define PI 3.14159
+
 using namespace std;
 
 bool has_started_competition = false;
@@ -267,6 +269,24 @@ void populate_forward_kinematics()
     q_pose[5] = joint_state_map["wrist_3_joint"];
     ur_kinematics::forward((double *)&q_pose, (double *)&T_pose);
     
+}
+
+void apply_solution_contstraints()
+{
+    int best_heuristic;
+    for(int solution_index = 0; solution_index < 8; solution_idex++)
+    {
+        int heuristics_satisfied = 0;
+        for(int angle_index = 0; angle_index < 6; angle_index++)
+        {
+            if(-1.0f * PI / 2.0f < q_sols[solution_index][angle_index] || q_sols[solution_index][angle_index] < PI / 2.0f)
+            {
+                heuristics_satisfied++;
+            }
+        }
+    }
+
+    best_solution = q_sols[best_heuristic];
 }
 
 void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
