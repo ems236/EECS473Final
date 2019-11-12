@@ -147,7 +147,7 @@ bool lookup_next_object(int index, geometry_msgs::Pose* pose)
     if(index < camera_data.models.size())
     {
         osrf_gear::Model current = camera_data.models.at(index);
-        pose* = current.pose; 
+        *pose = current.pose; 
         return true;
     }
 
