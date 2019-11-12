@@ -142,6 +142,16 @@ geometry_msgs::Pose lookup_object_location(string type)
     }
 }
 
+geometry_msgs::Pose lookup_next_object(int index)
+{
+    if(index < camera_data.models.size())
+    {
+        osrf_gear::Model current = camera_data.models.at(i);
+        return current.pose;
+    }
+
+    return NULL;
+}
 
 void new_order_callback(const osrf_gear::Order::ConstPtr& new_order)
 {
@@ -340,10 +350,12 @@ int main(int argc, char** argv)
         
         if(have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
         {
-            geometry_msgs::Pose object_pose_local = lookup_object_location(current_model_type);
-			
-            geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
-            print_pose("Object location in base_link", goal_pose.pose);
+            for(int logical_object_index = 0; logical_object_index < camera_data.models.size(); logical_object_index++)
+            {
+                geometry_msgs::Pose object_pose_local = lookup_next_object(logical_object_index);
+                geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
+                print_pose("Object location in base_link", goal_pose.pose);
+            }
 
             /*
             move_group.setPoseTarget(object_pose_world);
