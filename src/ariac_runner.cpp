@@ -280,7 +280,7 @@ void apply_solution_constraints(int num_sols)
         int heuristics_satisfied = 0;
         for(int angle_index = 0; angle_index < 6; angle_index++)
         {
-            if(-1.0f * PI / 2.0f < q_sols[solution_index][angle_index] || q_sols[solution_index][angle_index] < PI / 2.0f)
+            if(-1.0f * PI / 2.0f < q_sols[solution_index][angle_index] && q_sols[solution_index][angle_index] < PI / 2.0f)
             {
                 heuristics_satisfied++;
             }
