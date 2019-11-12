@@ -33,16 +33,16 @@ osrf_gear::LogicalCameraImage camera_data;
 
 map<string, float> joint_state_map;
 
-geometry_msgs::PoseStamped desired_pose;
-
 //Kinemtatics info
 double T_pose[4][4], T_des[4][4];
 double q_pose[6], q_sols[8][6];
+double best_solution[6];
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
 string current_model_type = "";
 int camera_model_index = -1;
+int sequence_number = 0;
 
 bool is_current_object_known()
 {
@@ -246,7 +246,7 @@ geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer
     local_pose.pose = logical_pose;
 
     tf2::doTransform(local_pose, world_pose, tf_logical_to_world);
-    offset_target_position(&world_pose);
+    //offset_target_position(&world_pose);
     tf2::doTransform(world_pose, base_link_pose, tf_world_to_base_link);
 
     return base_link_pose;
@@ -255,7 +255,6 @@ geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer
 
 void populate_forward_kinematics()
 {
-    
     q_pose[0] = joint_state_map["shoulder_pan_joint"];
     q_pose[1] = joint_state_map["shoulder_lift_joint"];
     q_pose[2] = joint_state_map["elbow_joint"];
@@ -266,9 +265,8 @@ void populate_forward_kinematics()
     
 }
 
-void inverse_desired_pos()
+void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
 {
-    
     T_des[0][3] = desired_pose.pose.position.x;
     T_des[1][3] = desired_pose.pose.position.y;
     T_des[2][3] = desired_pose.pose.position.z + 0.3; // above part
@@ -280,11 +278,14 @@ void inverse_desired_pos()
     T_des[3][0] = 0.0; T_des[3][1] = 0.0; T_des[3][2] = 0.0;
 
     int num_sols = ur_kinematics::inverse((double *)&T_des, (double *)&q_sols);
+    best_solution = q_sols[0];
+}
 
-
+void move_to_best_position(const ros::Publisher& command_publisher)
+{
     trajectory_msgs::JointTrajectory joint_trajectory;
     // Fill out the joint trajectory header.
-    //joint_trajectory.header.seq = count++; // Each joint trajectory should have anincremented sequence number
+    joint_trajectory.header.seq = sequence_number++; // Each joint trajectory should have anincremented sequence number
     joint_trajectory.header.stamp = ros::Time::now(); // When was this messagecreated.
     joint_trajectory.header.frame_id = "/world"; // Frame in which this is specified.
     // Set the names of the joints being used. All must be present.
@@ -322,7 +323,6 @@ void inverse_desired_pos()
     // When to start (immediately upon receipt).
     joint_trajectory.points[0].time_from_start = ros::Duration(0.0);
     // Must select which of the num_sols solution to use. Just start with the first.
-    int q_sols_indx = 0;
     // Set the end point for the movement
     joint_trajectory.points[1].positions.resize(joint_trajectory.joint_names.size());
     // Set the linear_arm_actuator_joint from joint_states as it is not part of the inverse kinematics solution.
@@ -330,12 +330,12 @@ void inverse_desired_pos()
     // The actuators are commanded in an odd order, enter the joint positions in the correct positions
     for (int indy = 0; indy < 6; indy++) 
     {
-        joint_trajectory.points[1].positions[indy + 1] = q_sols[q_sols_indx][indy];
+        joint_trajectory.points[1].positions[indy + 1] = best_solution[indy];
     }
     // How long to take for the movement.
     joint_trajectory.points[1].time_from_start = ros::Duration(1.0);
     // Publish the specified trajectory.
-    //joint_trajectories.publish(joint_trajectory);
+    command_publisher.publish(joint_trajectory);
     
 }
 
@@ -355,6 +355,8 @@ int main(int argc, char** argv)
     ros::Subscriber logical_camera_subscriber = node_handle.subscribe("/ariac/logical_camera", 200, camera_callback);
     ros::Subscriber joint_state_subscriber = node_handle.subscribe("/ariac/joint_states", 10, joint_state_listener);
     
+    ros::Publisher trajectory_publisher = node_handle.advertise<trajectory_msgs::JointTrajectory>("ariac/arm/command", 200);
+
     //Spin slow until competition starts
     ros::Rate loop_rate(0.2);
 
@@ -371,6 +373,10 @@ int main(int argc, char** argv)
                 {
                     geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
                     print_pose("Object location in base_link", goal_pose.pose);
+                    inverse_desired_pos(goal_pose);
+                    move_to_best_position(trajectory_publisher);
+
+                    return 0;
                 }
             }
 
