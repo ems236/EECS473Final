@@ -262,12 +262,12 @@ void inverse_desired_pos()
     T_des[2][0] = -1.0; T_des[2][1] = 0.0; T_des[2][2] = 0.0;
     T_des[3][0] = 0.0; T_des[3][1] = 0.0; T_des[3][2] = 0.0;
 
-    int num_sols = ur_kinematics::inverse((double *)&T_des, (double *)&q_sols);
+    int num_sols = ur_kinematics::inverse((float *)&T_des, (double *)&q_sols);
 
 
     trajectory_msgs::JointTrajectory joint_trajectory;
     // Fill out the joint trajectory header.
-    joint_trajectory.header.seq = count++; // Each joint trajectory should have anincremented sequence number
+    //joint_trajectory.header.seq = count++; // Each joint trajectory should have anincremented sequence number
     joint_trajectory.header.stamp = ros::Time::now(); // When was this messagecreated.
     joint_trajectory.header.frame_id = "/world"; // Frame in which this is specified.
     // Set the names of the joints being used. All must be present.
@@ -311,7 +311,7 @@ void inverse_desired_pos()
     // How long to take for the movement.
     joint_trajectory.points[1].time_from_start = ros::Duration(1.0);
     // Publish the specified trajectory.
-    joint_trajectories.publish(joint_trajectory);
+    //joint_trajectories.publish(joint_trajectory);
     
 }
 
