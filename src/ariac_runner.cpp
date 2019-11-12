@@ -142,15 +142,16 @@ geometry_msgs::Pose lookup_object_location(string type)
     }
 }
 
-geometry_msgs::Pose lookup_next_object(int index)
+bool lookup_next_object(int index, geometry_msgs::Pose* pose)
 {
     if(index < camera_data.models.size())
     {
         osrf_gear::Model current = camera_data.models.at(index);
-        return current.pose;
+        pose* = current.pose; 
+        return true;
     }
 
-    return nullptr;
+    return false;
 }
 
 void new_order_callback(const osrf_gear::Order::ConstPtr& new_order)
@@ -352,9 +353,12 @@ int main(int argc, char** argv)
         {
             for(int logical_object_index = 0; logical_object_index < camera_data.models.size(); logical_object_index++)
             {
-                geometry_msgs::Pose object_pose_local = lookup_next_object(logical_object_index);
-                geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
-                print_pose("Object location in base_link", goal_pose.pose);
+                geometry_msgs::Pose object_pose_local; 
+                if(lookup_next_object(logical_object_index, &object_pose_local))
+                {
+                    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
+                    print_pose("Object location in base_link", goal_pose.pose);
+                }
             }
 
             /*
