@@ -271,11 +271,11 @@ void populate_forward_kinematics()
     
 }
 
-void apply_solution_constraints()
+void apply_solution_constraints(int num_sols)
 {
     int best_index = 0;
     int best_heuristic_count = 0;
-    for(int solution_index = 0; solution_index < 8; solution_index++)
+    for(int solution_index = 0; solution_index < num_sols; solution_index++)
     {
         int heuristics_satisfied = 0;
         for(int angle_index = 0; angle_index < 6; angle_index++)
@@ -286,6 +286,7 @@ void apply_solution_constraints()
             }
         }
 
+        ROS_INFO("index %i satisfies %i heuristics", solution_index, heuristics_satisfied);
         if(heuristics_satisfied > best_heuristic_count)
         {
             best_index = solution_index;
@@ -293,7 +294,7 @@ void apply_solution_constraints()
         }
     }
 
-    best_solution = q_sols[best_heuristic_count];
+    best_solution = q_sols[best_index];
 }
 
 void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
@@ -309,7 +310,7 @@ void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
     T_des[3][0] = 0.0; T_des[3][1] = 0.0; T_des[3][2] = 0.0;
 
     int num_sols = ur_kinematics::inverse((double *)&T_des, (double *)&q_sols);
-    apply_solution_constraints();
+    apply_solution_constraints(num_sols);
 }
 
 void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_msgs::FollowJointTrajectoryAction& trajectory_action)
