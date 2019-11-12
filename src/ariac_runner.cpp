@@ -276,8 +276,9 @@ void apply_solution_constraints(int num_sols)
     int best_index = 0;
     int best_heuristic_count = 0;
 
-    float lowerBounds[6] = {-1.0f * PI / 2.0f, PI / 2.0f, -1.0f * PI / 2.0f, PI / 2.0f, PI / 2.0f, PI / 2.0f};
-    float higherBound[6] = {PI / 2.0f, 3.0f * PI / 2.0f, PI / 2.0f, 3.0f * PI / 2.0f, 3.0f * PI / 2.0f, 3.0f * PI / 2.0f};
+    int heuristic_weight[6] = {1, 1, 1, 0, 1, 1}
+    float lowerBounds[6] = {-1.0f * PI / 2.0f, PI / 2.0f, PI / 2.0f, 0, PI / 2.0f, PI / 2.0f};
+    float higherBound[6] = {PI / 2.0f, 3.0f * PI / 2.0f, 3.0f * PI / 2.0f, 0, 3.0f * PI / 2.0f, 3.0f * PI / 2.0f};
     for(int solution_index = 0; solution_index < num_sols; solution_index++)
     {
         int heuristics_satisfied = 0;
