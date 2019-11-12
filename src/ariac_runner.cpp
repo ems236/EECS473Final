@@ -19,6 +19,10 @@
 #include "ur_kinematics/ur_kin.h" 
 #include "trajectory_msgs/JointTrajectory.h"
 
+#include "actionlib/client/simple_action_client.h"
+#include "actionlib/client/terminal_state.h"
+#include "control_msgs/FollowJointTrajectoryAction.h"
+
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -281,13 +285,13 @@ void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
     best_solution = q_sols[0];
 }
 
-void move_to_best_position(const ros::Publisher& command_publisher)
+void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_msgs::FollowJointTrajectoryAction& trajectory_action)
 {
     trajectory_msgs::JointTrajectory joint_trajectory;
     // Fill out the joint trajectory header.
-    joint_trajectory.header.seq = sequence_number++; // Each joint trajectory should have anincremented sequence number
-    joint_trajectory.header.stamp = ros::Time::now(); // When was this messagecreated.
-    joint_trajectory.header.frame_id = "/world"; // Frame in which this is specified.
+    trajectory_action.header.seq = sequence_number++; // Each joint trajectory should have anincremented sequence number
+    trajectory_action.header.stamp = ros::Time::now(); // When was this messagecreated.
+    trajectory_action.header.frame_id = "/world"; // Frame in which this is specified.
     // Set the names of the joints being used. All must be present.
     joint_trajectory.joint_names.clear();
     joint_trajectory.joint_names.push_back("linear_arm_actuator_joint");
@@ -335,8 +339,9 @@ void move_to_best_position(const ros::Publisher& command_publisher)
     // How long to take for the movement.
     joint_trajectory.points[1].time_from_start = ros::Duration(1.0);
     // Publish the specified trajectory.
-    command_publisher.publish(joint_trajectory);
-    
+    //command_publisher.publish(joint_trajectory);
+
+    trajectory_action.action_goal.goal.trajectory = joint_trajectory;
 }
 
 int main(int argc, char** argv)
@@ -357,6 +362,17 @@ int main(int argc, char** argv)
     
     ros::Publisher trajectory_publisher = node_handle.advertise<trajectory_msgs::JointTrajectory>("ariac/arm/command", 200);
 
+    actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>trajectory_as("ariac/arm/follow_joint_trajectory", true);
+    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
+
+    
+    // Create the structure to populate for running the Action Server.
+    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
+    // It is possible to reuse the JointTrajectory from above
+    
+    // The header and goal (not the tolerances) of the action must be filled out as well.
+    // (rosmsg show control_msgs/FollowJointTrajectoryAction)
+
     //Spin slow until competition starts
     ros::Rate loop_rate(0.2);
 
@@ -365,6 +381,10 @@ int main(int argc, char** argv)
     {    
         if(have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
         {
+            //If we're doing blocking calls we might as well keep messages up to date 
+            ros::AsyncSpinner spinner(1);
+            spinner.start();
+
             for(int logical_object_index = 0; logical_object_index < camera_data.models.size(); logical_object_index++)
             {
                 geometry_msgs::Pose object_pose_local; 
@@ -373,11 +393,15 @@ int main(int argc, char** argv)
                     geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
                     print_pose("Object location in base_link", goal_pose.pose);
                     inverse_desired_pos(goal_pose);
-                    move_to_best_position(trajectory_publisher);
-
-                     ros::Duration(1).sleep();
+                    move_to_best_position(joint_trajectory_as);
+                    
+                    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_traj_as.action_goal.goal, ros::Duration(30.0), ros::Duration(30.0));
+                    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
                 }
             }
+
+            
+            spinner.stop();
 
             /*
             move_group.setPoseTarget(object_pose_world);
@@ -404,7 +428,6 @@ int main(int argc, char** argv)
                 ROS_INFO("Planning failed");
             }
 
-            spinner.stop();
             */
         }
         //process all callbacks
