@@ -273,15 +273,15 @@ void populate_forward_kinematics()
 
 void apply_solution_constraints(int num_sols)
 {
-    best_solution = q_sols[0];    
-    return;
+    //best_solution = q_sols[0];    
+    //return;
 
     int best_index = 0;
     int best_heuristic_count = 0;
 
     int heuristic_weight[6] = {1, 1, 1, 0, 1, 1};
-    float lowerBounds[6] = {-1.0f * PI / 2.0f, PI / 2.0f, PI / 2.0f, 0, PI / 2.0f, PI / 2.0f};
-    float higherBound[6] = {PI / 2.0f, 3.0f * PI / 2.0f, 3.0f * PI / 2.0f, 0, 3.0f * PI / 2.0f, 3.0f * PI / 2.0f};
+    float lowerBounds[6] = {PI, PI, PI, 0, PI, PI};
+    float higherBound[6] = {2.0f * PI, 2.0f * PI, 2.0f * PI, 0, 2.0f * PI, 2.0f * PI};
     for(int solution_index = 0; solution_index < num_sols; solution_index++)
     {
         int heuristics_satisfied = 0;
