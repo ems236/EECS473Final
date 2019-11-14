@@ -281,7 +281,7 @@ void apply_solution_constraints(int num_sols)
 
     int heuristic_weight[6] = {31, 10, 20, 0, 0, 0};
     float lowerBounds[6] = {0, -1.0f * PI, PI, PI, PI, PI};
-    float higherBound[6] = {PI, 0, 2.0f * PI, 2.0f * PI, 2.0f * PI, 2.0f * PI};
+    float higherBound[6] = {PI, -1.0f * PI / 2.0f, 2.0f * PI, 2.0f * PI, 2.0f * PI, 2.0f * PI};
     for(int solution_index = 0; solution_index < num_sols; solution_index++)
     {
         int heuristics_satisfied = 0;
