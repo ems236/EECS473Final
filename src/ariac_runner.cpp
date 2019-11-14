@@ -373,6 +373,7 @@ void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_m
     // The actuators are commanded in an odd order, enter the joint positions in the correct positions
     for (int indy = 0; indy < 6; indy++) 
     {
+        ROS_INFO("%s is moving to point %f", joint_trajectory.joint_names[indy + 1].c_str(), best_solution[indy]);
         joint_trajectory.points[1].positions[indy + 1] = best_solution[indy];
     }
     // How long to take for the movement.
