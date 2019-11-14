@@ -279,8 +279,8 @@ void apply_solution_constraints(int num_sols)
     int best_index = 0;
     int best_heuristic_count = 0;
 
-    int heuristic_weight[6] = {1, 1, 0, 1, 1, 1};
-    float lowerBounds[6] = {PI, PI, 0, PI, PI, PI};
+    int heuristic_weight[6] = {1, 1, 1, 1, 1, 1};
+    float lowerBounds[6] = {PI, PI, -1.0f * PI / 3.0f, PI, PI, PI};
     float higherBound[6] = {2.0f * PI, 2.0f * PI, 0, 2.0f * PI, 2.0f * PI, 2.0f * PI};
     for(int solution_index = 0; solution_index < num_sols; solution_index++)
     {
@@ -301,6 +301,7 @@ void apply_solution_constraints(int num_sols)
         }
     }
 
+    ROS_INFO("Picking index %i as the best solution", best_index);
     best_solution = q_sols[best_index];
     //best_solution = q_sols[0];    
 }
@@ -432,7 +433,7 @@ int main(int argc, char** argv)
                     move_to_best_position(joint_trajectory_as);
                     
                     ROS_INFO("finished moving");
-                    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(30.0));
+                    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
                     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
                 }
             }
