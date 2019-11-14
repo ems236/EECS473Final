@@ -289,7 +289,7 @@ void apply_solution_constraints(int num_sols)
         {
             if(lowerBounds[solution_index] < q_sols[solution_index][angle_index] && q_sols[solution_index][angle_index] < higherBound[solution_index])
             {
-                heuristics_satisfied += heuristic_weight[solution_index] * 1;
+                heuristics_satisfied += heuristic_weight[angle_index] * 1;
             }
         }
 
