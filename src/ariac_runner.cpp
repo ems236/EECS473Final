@@ -273,6 +273,9 @@ void populate_forward_kinematics()
 
 void apply_solution_constraints(int num_sols)
 {
+    best_solution = q_sols[0];    
+    return;
+
     int best_index = 0;
     int best_heuristic_count = 0;
 
@@ -425,6 +428,7 @@ int main(int argc, char** argv)
                     inverse_desired_pos(goal_pose);
                     move_to_best_position(joint_trajectory_as);
                     
+                    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
                     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(30.0));
                     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
                 }
