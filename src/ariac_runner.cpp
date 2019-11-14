@@ -435,6 +435,8 @@ int main(int argc, char** argv)
                     ROS_INFO("finished moving");
                     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
                     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
+
+                    ros::Duration(3.0).sleep();
                 }
             }
 
