@@ -349,6 +349,7 @@ void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_m
     {
         string current_name = joint_trajectory.joint_names[indy];
         joint_trajectory.points[0].positions[indy] = joint_state_map[current_name];
+        ROS_INFO("%s is at point %f", current_name.c_str(), joint_state_map[current_name]);
         /*
         for (int indz = 0; indz < joint_states.name.size(); indz++) 
         {
