@@ -343,6 +343,7 @@ void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_m
     // Set the start point to the current position of the joints from joint_states.
     joint_trajectory.points[0].positions.resize(joint_trajectory.joint_names.size());
 
+    ROS_INFO("elbow is at %f", joint_state_map["elbow_joint"]);
     
     for (int indy = 0; indy < joint_trajectory.joint_names.size(); indy++) 
     {
