@@ -426,9 +426,12 @@ int main(int argc, char** argv)
                     geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
                     print_pose("Object location in base_link", goal_pose.pose);
                     inverse_desired_pos(goal_pose);
+                    
+                    ROS_INFO("looking up position");
+                    
                     move_to_best_position(joint_trajectory_as);
                     
-                    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
+                    ROS_INFO("finished moving");
                     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(30.0));
                     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
                 }
