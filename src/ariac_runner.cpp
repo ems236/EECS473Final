@@ -343,7 +343,7 @@ void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_m
     // Set the start point to the current position of the joints from joint_states.
     joint_trajectory.points[0].positions.resize(joint_trajectory.joint_names.size());
 
-    ROS_INFO("elbow is at %f", joint_state_map["elbow_joint"]);
+    //ROS_INFO("elbow is at %f", joint_state_map["elbow_joint"]);
     
     for (int indy = 0; indy < joint_trajectory.joint_names.size(); indy++) 
     {
@@ -377,7 +377,7 @@ void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_m
         joint_trajectory.points[1].positions[indy + 1] = best_solution[indy];
     }
     // How long to take for the movement.
-    joint_trajectory.points[1].time_from_start = ros::Duration(1.0);
+    joint_trajectory.points[1].time_from_start = ros::Duration(3.0);
     // Publish the specified trajectory.
     //command_publisher.publish(joint_trajectory);
 
