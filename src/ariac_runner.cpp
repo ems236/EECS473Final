@@ -43,7 +43,7 @@ map<string, float> joint_state_map;
 double T_pose[4][4], T_des[4][4];
 double q_pose[6], q_sols[8][6];
 double best_solution[6];
-double home_position[7];
+double home_position[7] {0.03874, 3.218194, 4.0, 1.596, 3.022, -1.615, 0.0445};
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
@@ -427,7 +427,6 @@ int main(int argc, char** argv)
     ros::Publisher trajectory_publisher = node_handle.advertise<trajectory_msgs::JointTrajectory>("ariac/arm/command", 200);
 
     actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>trajectory_as("ariac/arm/follow_joint_trajectory", true);
-    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
 
     // It is possible to reuse the JointTrajectory from above
     
@@ -436,6 +435,13 @@ int main(int argc, char** argv)
 
     //Spin slow until competition starts
     ros::Rate loop_rate(0.2);
+
+    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
+    initialize_trajectory(joint_trajectory_as);
+    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0));
+    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
+    ros::Duration(1.0).sleep();
+
 
     //Main loop
     while(ros::ok())
@@ -459,6 +465,7 @@ int main(int argc, char** argv)
                     
                     ROS_INFO("looking up position");
                     
+                    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
                     initialize_trajectory(joint_trajectory_as);
                     add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
                     //move_to_best_position(joint_trajectory_as);
