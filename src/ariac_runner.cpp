@@ -428,7 +428,7 @@ int main(int argc, char** argv)
     
     ros::Publisher trajectory_publisher = node_handle.advertise<trajectory_msgs::JointTrajectory>("ariac/arm/command", 200);
 
-    actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>trajectory_as("ariac/arm/follow_joint_trajectory", true);
+    actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> trajectory_as("ariac/arm/follow_joint_trajectory", true);
 
     // It is possible to reuse the JointTrajectory from above
     
@@ -441,6 +441,9 @@ int main(int argc, char** argv)
     {
         ros::spinOnce();
     }
+
+    ros::AsyncSpinner spinner(1);
+    spinner.start();
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
@@ -456,10 +459,6 @@ int main(int argc, char** argv)
     {    
         if(have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
         {
-            //If we're doing blocking calls we might as well keep messages up to date 
-            ros::AsyncSpinner spinner(1);
-            spinner.start();
-
             for(int logical_object_index = 0; logical_object_index < camera_data.models.size(); logical_object_index++)
             {
                 geometry_msgs::Pose object_pose_local; 
@@ -485,10 +484,6 @@ int main(int argc, char** argv)
                     ros::Duration(3.0).sleep();
                 }
             }
-
-            
-            spinner.stop();
-
             /*
             move_group.setPoseTarget(object_pose_world);
             //moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
@@ -521,5 +516,7 @@ int main(int argc, char** argv)
         loop_rate.sleep();
     }
     
+    spinner.stop();
+
     return 0;   
 }
