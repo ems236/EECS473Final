@@ -463,7 +463,8 @@ int main(int argc, char** argv)
 
     //Main loop
     while(ros::ok())
-    {    
+    {   
+        /* 
         for(int logical_object_index = 0; logical_object_index < camera_data.models.size(); logical_object_index++)
         {
             geometry_msgs::Pose object_pose_local; 
@@ -489,6 +490,7 @@ int main(int argc, char** argv)
                 ros::Duration(3.0).sleep();
             }
         }
+        */
         /*
         move_group.setPoseTarget(object_pose_world);
         //moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
