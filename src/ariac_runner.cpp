@@ -435,11 +435,13 @@ int main(int argc, char** argv)
 
     //Spin slow until competition starts
     ros::Rate loop_rate(0.2);
+    ros::spinOnce();
+
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
-    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(1.5));
-    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
+    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(1.5));
+    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ros::Duration(1.0).sleep();
     ROS_INFO("Moved home");
 
