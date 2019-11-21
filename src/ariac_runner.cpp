@@ -404,7 +404,8 @@ void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
 
 void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start)
 {
-    add_point_to_trajectory(trajectory_action, time_from_start, &home_position[1], home_position[0]);   
+    float home_arm_position = home_position[0];
+    add_point_to_trajectory(trajectory_action, time_from_start, &home_position[1], home_arm_position);   
 }
 
 int main(int argc, char** argv)
