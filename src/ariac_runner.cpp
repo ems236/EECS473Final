@@ -310,7 +310,7 @@ void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
 {
     T_des[0][3] = desired_pose.pose.position.x;
     T_des[1][3] = desired_pose.pose.position.y;
-    T_des[2][3] = desired_pose.pose.position.z + 0.3; // above part
+    T_des[2][3] = desired_pose.pose.position.z; // above part
     T_des[3][3] = 1.0;
     // The orientation of the end effector so that the end effector is down.
     T_des[0][0] = 0.0; T_des[0][1] = -1.0; T_des[0][2] = 0.0;
@@ -322,7 +322,7 @@ void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
     apply_solution_constraints(num_sols);
 }
 
-void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_msgs::FollowJointTrajectoryAction& trajectory_action)
+void initialize_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action)
 {
     trajectory_msgs::JointTrajectory joint_trajectory;
     // Fill out the joint trajectory header.
@@ -339,7 +339,7 @@ void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_m
     joint_trajectory.joint_names.push_back("wrist_2_joint");
     joint_trajectory.joint_names.push_back("wrist_3_joint");
     // Set a start and end point.
-    joint_trajectory.points.resize(2);
+    joint_trajectory.points.resize(1);
     // Set the start point to the current position of the joints from joint_states.
     joint_trajectory.points[0].positions.resize(joint_trajectory.joint_names.size());
 
@@ -365,23 +365,31 @@ void move_to_best_position(/*const ros::Publisher& command_publisher*/ control_m
 
     // When to start (immediately upon receipt).
     joint_trajectory.points[0].time_from_start = ros::Duration(0.0);
-    // Must select which of the num_sols solution to use. Just start with the first.
-    // Set the end point for the movement
-    joint_trajectory.points[1].positions.resize(joint_trajectory.joint_names.size());
+    trajectory_action.action_goal.goal.trajectory = joint_trajectory;
+}
+
+void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, ros::Duration& time_from_start)
+{
+    add_best_point_to_trajectory(trajectory_action, time_from_start, joint_state_map["linear_arm_actuator_joint"]);   
+}
+
+void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, ros::Duration& time_from_start, float arm_position)
+{
+    trajectory_msgs::JointTrajectory joint_trajectory = trajectory_action.action_goal.goal.trajectory;
+    joint_trajectory.points.resize(joint_trajectory.points.size() + 1);
+    int last_index = joint_trajectory.points.size() - 1;
+
+    joint_trajectory.points[last_index].positions.resize(joint_trajectory.joint_names.size());
     // Set the linear_arm_actuator_joint from joint_states as it is not part of the inverse kinematics solution.
-    joint_trajectory.points[1].positions[0] = joint_state_map["linear_arm_actuator_joint"];
+    joint_trajectory.points[last_index].positions[0] = arm_position;
     // The actuators are commanded in an odd order, enter the joint positions in the correct positions
     for (int indy = 0; indy < 6; indy++) 
     {
         ROS_INFO("%s is moving to point %f", joint_trajectory.joint_names[indy + 1].c_str(), best_solution[indy]);
-        joint_trajectory.points[1].positions[indy + 1] = best_solution[indy];
+        joint_trajectory.points[last_index].positions[indy + 1] = best_solution[indy];
     }
     // How long to take for the movement.
-    joint_trajectory.points[1].time_from_start = ros::Duration(3.0);
-    // Publish the specified trajectory.
-    //command_publisher.publish(joint_trajectory);
-
-    trajectory_action.action_goal.goal.trajectory = joint_trajectory;
+    joint_trajectory.points[last_index].time_from_start = time_from_start;
 }
 
 int main(int argc, char** argv)
@@ -429,11 +437,15 @@ int main(int argc, char** argv)
                 {
                     geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
                     print_pose("Object location in base_link", goal_pose.pose);
+                    //offset so above
+                    goal_pose.pose.position.z += 0.3; 
                     inverse_desired_pos(goal_pose);
                     
                     ROS_INFO("looking up position");
                     
-                    move_to_best_position(joint_trajectory_as);
+                    initialize_trajectory(joint_trajectory_as);
+                    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
+                    //move_to_best_position(joint_trajectory_as);
                     
                     ROS_INFO("finished moving");
                     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
