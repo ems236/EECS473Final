@@ -385,6 +385,7 @@ void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
     }
     // How long to take for the movement.
     joint_trajectory.points[last_index].time_from_start = time_from_start;
+    trajectory_action.action_goal.goal.trajectory = joint_trajectory;
 }
 
 void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start)
