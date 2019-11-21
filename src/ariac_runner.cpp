@@ -443,6 +443,14 @@ int main(int argc, char** argv)
         loop_rate.sleep();
     }
 
+    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
+    initialize_trajectory(joint_trajectory_as);
+    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(1.5));
+    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
+    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
+
+    ros::Duration(1.0).sleep();
+
     while(!have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
     {
         ros::spinOnce();
@@ -452,13 +460,7 @@ int main(int argc, char** argv)
     ros::AsyncSpinner spinner(1);
     spinner.start();
 
-    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
-    initialize_trajectory(joint_trajectory_as);
-    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(1.5));
-    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
-    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
-
-    ros::Duration(1.0).sleep();
+    
     ROS_INFO("Moved home");
 
     //Main loop
