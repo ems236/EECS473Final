@@ -372,7 +372,7 @@ void initialize_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory
     trajectory_action.action_goal.goal.trajectory = joint_trajectory;
 }
 
-void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, float* joint_positions, float arm_position)
+void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, double* joint_positions, double arm_position)
 {
     trajectory_msgs::JointTrajectory joint_trajectory = trajectory_action.action_goal.goal.trajectory;
     joint_trajectory.points.resize(joint_trajectory.points.size() + 1);
@@ -392,7 +392,7 @@ void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajecto
     trajectory_action.action_goal.goal.trajectory = joint_trajectory;
 }
 
-void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, float* joint_positions)
+void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, double* joint_positions)
 {
     add_point_to_trajectory(trajectory_action, time_from_start, joint_positions, joint_state_map["linear_arm_actuator_joint"]);   
 }
