@@ -440,6 +440,13 @@ int main(int argc, char** argv)
     while(!has_found_joint_states)
     {
         ros::spinOnce();
+        loop_rate.sleep();
+    }
+
+    while(!have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
+    {
+        ros::spinOnce();
+        loop_rate.sleep();
     }
 
     ros::AsyncSpinner spinner(1);
@@ -457,64 +464,63 @@ int main(int argc, char** argv)
     //Main loop
     while(ros::ok())
     {    
-        if(have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
+        for(int logical_object_index = 0; logical_object_index < camera_data.models.size(); logical_object_index++)
         {
-            for(int logical_object_index = 0; logical_object_index < camera_data.models.size(); logical_object_index++)
+            geometry_msgs::Pose object_pose_local; 
+            if(lookup_next_object(logical_object_index, &object_pose_local))
             {
-                geometry_msgs::Pose object_pose_local; 
-                if(lookup_next_object(logical_object_index, &object_pose_local))
-                {
-                    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
-                    print_pose("Object location in base_link", goal_pose.pose);
-                    //offset so above
-                    goal_pose.pose.position.z += 0.3; 
-                    inverse_desired_pos(goal_pose);
-                    
-                    ROS_INFO("looking up position");
-                    
-                    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
-                    initialize_trajectory(joint_trajectory_as);
-                    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
-                    //move_to_best_position(joint_trajectory_as);
-                    
-                    ROS_INFO("finished moving");
-                    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
-                    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
+                geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
+                print_pose("Object location in base_link", goal_pose.pose);
+                //offset so above
+                goal_pose.pose.position.z += 0.3; 
+                inverse_desired_pos(goal_pose);
+                
+                ROS_INFO("looking up position");
+                
+                control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
+                initialize_trajectory(joint_trajectory_as);
+                add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
+                //move_to_best_position(joint_trajectory_as);
+                
+                ROS_INFO("finished moving");
+                actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
+                ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
 
-                    ros::Duration(3.0).sleep();
-                }
+                ros::Duration(3.0).sleep();
             }
-            /*
-            move_group.setPoseTarget(object_pose_world);
-            //moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
-            ROS_INFO("Starting to plan...");
-			
-			ros::AsyncSpinner spinner(1);
-            spinner.start();
-            if(move_group.plan(movement_plan))
+        }
+        /*
+        move_group.setPoseTarget(object_pose_world);
+        //moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
+        ROS_INFO("Starting to plan...");
+        
+        ros::AsyncSpinner spinner(1);
+        spinner.start();
+        if(move_group.plan(movement_plan))
+        {
+            ROS_INFO("Planning successful, trying to execute...");
+            if(move_group.execute(movement_plan))
             {
-                ROS_INFO("Planning successful, trying to execute...");
-                if(move_group.execute(movement_plan))
-                {
-                    ROS_INFO("Execution successful. Exitting...");
-                    exit(0);
-                }
-				else
-				{
-					ROS_INFO("Execution failed");
-				}
+                ROS_INFO("Execution successful. Exitting...");
+                exit(0);
             }
             else
             {
-                ROS_INFO("Planning failed");
+                ROS_INFO("Execution failed");
             }
-
-            */
         }
-        //process all callbacks
-        ros::spinOnce();
-        loop_rate.sleep();
+        else
+        {
+            ROS_INFO("Planning failed");
+        }
+
+        */
     }
+
+    //process all callbacks
+    ros::spinOnce();
+    loop_rate.sleep();
+    
     
     spinner.stop();
 
