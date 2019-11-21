@@ -368,12 +368,7 @@ void initialize_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory
     trajectory_action.action_goal.goal.trajectory = joint_trajectory;
 }
 
-void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, ros::Duration& time_from_start)
-{
-    add_best_point_to_trajectory(trajectory_action, time_from_start, joint_state_map["linear_arm_actuator_joint"]);   
-}
-
-void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, ros::Duration& time_from_start, float arm_position)
+void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, float arm_position)
 {
     trajectory_msgs::JointTrajectory joint_trajectory = trajectory_action.action_goal.goal.trajectory;
     joint_trajectory.points.resize(joint_trajectory.points.size() + 1);
@@ -390,6 +385,11 @@ void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
     }
     // How long to take for the movement.
     joint_trajectory.points[last_index].time_from_start = time_from_start;
+}
+
+void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start)
+{
+    add_best_point_to_trajectory(trajectory_action, time_from_start, joint_state_map["linear_arm_actuator_joint"]);   
 }
 
 int main(int argc, char** argv)
