@@ -42,7 +42,8 @@ map<string, float> joint_state_map;
 //Kinemtatics info
 double T_pose[4][4], T_des[4][4];
 double q_pose[6], q_sols[8][6];
-double* best_solution;
+double best_solution[6];
+double home_position[7];
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
@@ -302,7 +303,10 @@ void apply_solution_constraints(int num_sols)
     }
 
     ROS_INFO("Picking index %i as the best solution", best_index);
-    best_solution = q_sols[best_index];
+    for(int joint_index = 0; joint_index < 6; joint_index++)
+    {
+        best_solution[joint_index] = q_sols[best_index][joint_index];
+    }
     //best_solution = q_sols[0];    
 }
 
@@ -368,7 +372,7 @@ void initialize_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory
     trajectory_action.action_goal.goal.trajectory = joint_trajectory;
 }
 
-void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, float arm_position)
+void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, float* joint_positions, float arm_position)
 {
     trajectory_msgs::JointTrajectory joint_trajectory = trajectory_action.action_goal.goal.trajectory;
     joint_trajectory.points.resize(joint_trajectory.points.size() + 1);
@@ -380,17 +384,27 @@ void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
     // The actuators are commanded in an odd order, enter the joint positions in the correct positions
     for (int indy = 0; indy < 6; indy++) 
     {
-        ROS_INFO("%s is moving to point %f", joint_trajectory.joint_names[indy + 1].c_str(), best_solution[indy]);
-        joint_trajectory.points[last_index].positions[indy + 1] = best_solution[indy];
+        ROS_INFO("%s is moving to point %f", joint_trajectory.joint_names[indy + 1].c_str(), joint_positions[indy]);
+        joint_trajectory.points[last_index].positions[indy + 1] = joint_positions[indy];
     }
     // How long to take for the movement.
     joint_trajectory.points[last_index].time_from_start = time_from_start;
     trajectory_action.action_goal.goal.trajectory = joint_trajectory;
 }
 
+void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, float* joint_positions)
+{
+    add_point_to_trajectory(trajectory_action, time_from_start, joint_positions, joint_state_map["linear_arm_actuator_joint"]);   
+}
+
 void add_best_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start)
 {
-    add_best_point_to_trajectory(trajectory_action, time_from_start, joint_state_map["linear_arm_actuator_joint"]);   
+    add_point_to_trajectory(trajectory_action, time_from_start, best_solution);
+}
+
+void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start)
+{
+    add_point_to_trajectory(trajectory_action, time_from_start, &home_position[1], home_position[0]);   
 }
 
 int main(int argc, char** argv)
