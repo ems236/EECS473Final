@@ -38,6 +38,7 @@ osrf_gear::LogicalCameraImage camera_data;
 //sensor_msgs::JointState joint_states;
 
 map<string, float> joint_state_map;
+bool has_found_joint_states = false;
 
 //Kinemtatics info
 double T_pose[4][4], T_des[4][4];
@@ -181,6 +182,7 @@ void joint_state_listener(const sensor_msgs::JointState& joint_state)
     {
         joint_state_map[joint_state.name[joint_index]] = joint_state.position[joint_index];
     }
+    has_found_joint_states = true;
 }
 
 bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, ros::ServiceClient& kit_lookup_client)
@@ -435,8 +437,10 @@ int main(int argc, char** argv)
 
     //Spin slow until competition starts
     ros::Rate loop_rate(0.2);
-    ros::spinOnce();
-
+    while(!has_found_joint_states)
+    {
+        ros::spinOnce();
+    }
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
