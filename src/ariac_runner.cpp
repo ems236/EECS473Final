@@ -431,7 +431,7 @@ void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::Si
     initialize_trajectory(joint_trajectory_as);
     add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
 
-    goal_pose.pose.position.z -= 0.29;
+    goal_pose.pose.position.z -= 0.28;
     inverse_desired_pos(goal_pose);
     add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(4.0));
 
@@ -444,7 +444,7 @@ void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::Si
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_drop;
     initialize_trajectory(joint_trajectory_drop);
-    goal_pose.pose.position.z += 0.29;
+    goal_pose.pose.position.z += 0.28;
     inverse_desired_pos(goal_pose);
     add_best_point_to_trajectory(joint_trajectory_drop, ros::Duration(1.0));
 
