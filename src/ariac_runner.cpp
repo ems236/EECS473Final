@@ -417,8 +417,9 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
 
 void set_suction(ros::ServiceClient& begin_client, bool is_enabled)
 {
-    begin_client.request.enabled = is_enabled;
-    begin_client.call();
+    osrf_gear::VacuumGripperControl vaccuum_call;
+    vaccuum_call.request.enabled = is_enabled;
+    begin_client.call(vaccuum_call);
 }
 
 void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, ros::ServiceClient& begin_client)
