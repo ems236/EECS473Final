@@ -23,7 +23,7 @@
 #include "actionlib/client/terminal_state.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
 
-#include "ros/angles.h"
+#include "angles/angles.h"
 
 #include <cstdlib>
 #include <string>
