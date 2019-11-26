@@ -283,8 +283,8 @@ void apply_solution_constraints(int num_sols)
     int best_heuristic_count = 0;
 
     int heuristic_weight[6] = {10, 10, 10, 0, 0, 0};
-    float lowerBounds[6] = {PI / 2, PI, PI, PI, PI, PI};
-    float higherBound[6] = {3.0 * PI / 2.0, 2.0f * PI, 2.0f * PI, 2.0f * PI, 2.0f * PI, 2.0f * PI};
+    float lowerBounds[6] = {PI / 2, -1.0f * PI, PI / 4.0, PI, PI, PI};
+    float higherBound[6] = {3.0 * PI / 2.0, 0, PI, 2.0f * PI, 2.0f * PI, 2.0f * PI};
     for(int solution_index = 0; solution_index < num_sols; solution_index++)
     {
         int heuristics_satisfied = 0;
@@ -451,13 +451,12 @@ int main(int argc, char** argv)
 
     ros::Duration(1.0).sleep();
 
-    /*
+    
     while(!have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
     {
         ros::spinOnce();
         loop_rate.sleep();
     }
-    */
 
     ros::AsyncSpinner spinner(1);
     spinner.start();
@@ -467,8 +466,7 @@ int main(int argc, char** argv)
 
     //Main loop
     while(ros::ok())
-    {   
-        /* 
+    {    
         for(int logical_object_index = 0; logical_object_index < camera_data.models.size(); logical_object_index++)
         {
             geometry_msgs::Pose object_pose_local; 
@@ -494,7 +492,6 @@ int main(int argc, char** argv)
                 ros::Duration(3.0).sleep();
             }
         }
-        */
         /*
         move_group.setPoseTarget(object_pose_world);
         //moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
