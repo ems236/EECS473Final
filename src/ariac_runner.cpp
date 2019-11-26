@@ -418,7 +418,7 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
 void set_suction(ros::ServiceClient& begin_client, bool is_enabled)
 {
     osrf_gear::VacuumGripperControl vaccuum_call;
-    vaccuum_call.request.enabled = is_enabled;
+    vaccuum_call.request.enable = is_enabled;
     begin_client.call(vaccuum_call);
 }
 
