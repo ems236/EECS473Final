@@ -23,6 +23,8 @@
 #include "actionlib/client/terminal_state.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
 
+#include "ros/angles.h"
+
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -290,7 +292,8 @@ void apply_solution_constraints(int num_sols)
         int heuristics_satisfied = 0;
         for(int angle_index = 0; angle_index < 6; angle_index++)
         {
-            if(lowerBounds[angle_index] < q_sols[solution_index][angle_index] && q_sols[solution_index][angle_index] < higherBound[angle_index])
+            float current_angle = angles::normalize_angle(q_sols[solution_index][angle_index]);
+            if(lowerBounds[angle_index] < current_angle && current_angle < higherBound[angle_index])
             {
                 heuristics_satisfied += heuristic_weight[angle_index] * 1;
             }
@@ -307,7 +310,7 @@ void apply_solution_constraints(int num_sols)
     ROS_INFO("Picking index %i as the best solution", best_index);
     for(int joint_index = 0; joint_index < 6; joint_index++)
     {
-        best_solution[joint_index] = q_sols[best_index][joint_index];
+        best_solution[joint_index] = angles::normalize_angle(q_sols[solution_index][angle_index]);
     }
     //best_solution = q_sols[0];    
 }
@@ -348,7 +351,7 @@ void initialize_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory
     joint_trajectory.points.resize(1);
     // Set the start point to the current position of the joints from joint_states.
     joint_trajectory.points[0].positions.resize(joint_trajectory.joint_names.size());
-
+    joint_trajectory.points[0].positions.clear();
     //ROS_INFO("elbow is at %f", joint_state_map["elbow_joint"]);
     
     for (int indy = 0; indy < joint_trajectory.joint_names.size(); indy++) 
@@ -381,6 +384,7 @@ void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajecto
     int last_index = joint_trajectory.points.size() - 1;
 
     joint_trajectory.points[last_index].positions.resize(joint_trajectory.joint_names.size());
+    joint_trajectory.points[last_index].positions.clear();
     // Set the linear_arm_actuator_joint from joint_states as it is not part of the inverse kinematics solution.
     joint_trajectory.points[last_index].positions[0] = arm_position;
     // The actuators are commanded in an odd order, enter the joint positions in the correct positions
@@ -445,7 +449,7 @@ int main(int argc, char** argv)
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
-    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(1.5));
+    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
 
