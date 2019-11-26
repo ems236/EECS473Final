@@ -448,9 +448,8 @@ void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::Si
     inverse_desired_pos(goal_pose);
     add_best_point_to_trajectory(joint_trajectory_drop, ros::Duration(1.0));
 
-    set_suction(begin_client, false);
-
     state = trajectory_as.sendGoalAndWait(joint_trajectory_drop.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
+    set_suction(begin_client, false);
 
 
     ROS_INFO("finished moving");
