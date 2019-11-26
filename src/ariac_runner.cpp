@@ -44,7 +44,7 @@ bool has_found_joint_states = false;
 double T_pose[4][4], T_des[4][4];
 double q_pose[6], q_sols[8][6];
 double best_solution[6];
-double home_position[7] {0.03874, 3.218194, 1.57, 1.596, 3.022, -1.615, 0.0445};
+double home_position[7] {0.03874, 0, 1.57, 1.596, 3.022, -1.615, 0.0445};
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
