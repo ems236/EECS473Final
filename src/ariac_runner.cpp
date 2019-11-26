@@ -310,7 +310,7 @@ void apply_solution_constraints(int num_sols)
     ROS_INFO("Picking index %i as the best solution", best_index);
     for(int joint_index = 0; joint_index < 6; joint_index++)
     {
-        best_solution[joint_index] = angles::normalize_angle(q_sols[solution_index][angle_index]);
+        best_solution[joint_index] = angles::normalize_angle(q_sols[best_index][joint_index]);
     }
     //best_solution = q_sols[0];    
 }
