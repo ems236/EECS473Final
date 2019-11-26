@@ -438,7 +438,9 @@ void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::Si
     set_suction(begin_client, true);
     //move_to_best_position(joint_trajectory_as);
 
-    ros::Duration(1.0).sleep();
+    goal_pose.pose.position.z += 0.28;
+    inverse_desired_pos(goal_pose);
+    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0));
 
     set_suction(begin_client, false);
 
