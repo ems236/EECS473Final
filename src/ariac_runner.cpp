@@ -458,7 +458,7 @@ int main(int argc, char** argv)
     ros::ServiceClient begin_client = node_handle.serviceClient<std_srvs::Trigger>("/ariac/start_competition");
     ros::ServiceClient kit_lookup_client = node_handle.serviceClient<osrf_gear::GetMaterialLocations>("/ariac/material_locations");
     ros::ServiceClient kit_lookup_client = node_handle.serviceClient<osrf_gear::GetMaterialLocations>("/ariac/material_locations");
-    ros::ServiceClient vacuum_client = node_handle.serviceClient<osrf_gear::VacuumGripperControl("/ariac/gripper/control");
+    ros::ServiceClient vacuum_client = node_handle.serviceClient<osrf_gear::VacuumGripperControl>("/ariac/gripper/control");
 
     ros::Subscriber order_subscriber = node_handle.subscribe("/ariac/orders", 200, new_order_callback);
     ros::Subscriber logical_camera_subscriber = node_handle.subscribe("/ariac/logical_camera", 200, camera_callback);
@@ -510,7 +510,7 @@ int main(int argc, char** argv)
             geometry_msgs::Pose object_pose_local; 
             if(lookup_next_object(logical_object_index, &object_pose_local))
             {
-                geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
+                geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local, vacuum_client);
                 print_pose("Object location in base_link", goal_pose.pose);
                 
                 move_to_point_and_grip(goal_pose, trajectory_as);
