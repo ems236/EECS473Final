@@ -46,7 +46,7 @@ bool has_found_joint_states = false;
 double T_pose[4][4], T_des[4][4];
 double q_pose[6], q_sols[8][6];
 double best_solution[6];
-double home_position[7] {0.03874, 3.218, -0.9, 1.5, 3.022, -1.615, 0.0445};
+double home_position[7] {0.03874, -3.00, -0.9, 1.5, 3.022, -1.615, 0.0445};
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
@@ -285,8 +285,8 @@ void apply_solution_constraints(int num_sols)
     int best_heuristic_count = 0;
 
     int heuristic_weight[6] = {10, 10, 10, 0, 0, 0};
-    float lowerBounds[6] = {PI / 2, -1.0f * PI, PI / 6.0, PI, PI, PI};
-    float higherBound[6] = {3.0 * PI / 2.0, 0, PI, 2.0f * PI, 2.0f * PI, 2.0f * PI};
+    float lowerBounds[6] = {-1.0 * PI / 2, -1.0f * PI, PI / 6.0, PI, PI, PI};
+    float higherBound[6] = {PI / 2.0, 0, PI, 2.0f * PI, 2.0f * PI, 2.0f * PI};
     for(int solution_index = 0; solution_index < num_sols; solution_index++)
     {
         int heuristics_satisfied = 0;
