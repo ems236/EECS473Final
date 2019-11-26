@@ -414,16 +414,16 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
     add_point_to_trajectory(trajectory_action, time_from_start, &home_position[1], home_arm_position);   
 }
 
-void move_to_point_and_grip(geometry_msgs::Pose& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
+void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
 {
     //offset so above
-    goal_pose.position.z += 0.3; 
+    goal_pose.pose.position.z += 0.3; 
     inverse_desired_pos(goal_pose);
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
     add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
 
-    goal_pose.position.z -= 0.25;
+    goal_pose.pose.position.z -= 0.25;
     inverse_desired_pos(goal_pose);
     add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0));
     
@@ -503,7 +503,7 @@ int main(int argc, char** argv)
                 geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
                 print_pose("Object location in base_link", goal_pose.pose);
                 
-                move_to_point_and_grip(goal_pose.pose, trajectory_as);
+                move_to_point_and_grip(goal_pose, trajectory_as);
                 ros::Duration(3.0).sleep();
             }
         }
