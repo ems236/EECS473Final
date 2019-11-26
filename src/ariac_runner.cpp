@@ -351,7 +351,7 @@ void initialize_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory
     joint_trajectory.points.resize(1);
     // Set the start point to the current position of the joints from joint_states.
     joint_trajectory.points[0].positions.resize(joint_trajectory.joint_names.size());
-    joint_trajectory.points[0].positions.clear();
+    //joint_trajectory.points[0].positions.clear();
     //ROS_INFO("elbow is at %f", joint_state_map["elbow_joint"]);
     
     for (int indy = 0; indy < joint_trajectory.joint_names.size(); indy++) 
@@ -384,7 +384,7 @@ void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajecto
     int last_index = joint_trajectory.points.size() - 1;
 
     joint_trajectory.points[last_index].positions.resize(joint_trajectory.joint_names.size());
-    joint_trajectory.points[last_index].positions.clear();
+    //joint_trajectory.points[last_index].positions.clear();
     // Set the linear_arm_actuator_joint from joint_states as it is not part of the inverse kinematics solution.
     joint_trajectory.points[last_index].positions[0] = arm_position;
     // The actuators are commanded in an odd order, enter the joint positions in the correct positions
