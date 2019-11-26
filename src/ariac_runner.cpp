@@ -425,7 +425,7 @@ void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::Si
 
     goal_pose.pose.position.z -= 0.25;
     inverse_desired_pos(goal_pose);
-    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0));
+    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(4.0));
     
 
     //move_to_best_position(joint_trajectory_as);
