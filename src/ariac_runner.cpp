@@ -6,6 +6,7 @@
 #include "osrf_gear/StorageUnit.h"
 #include "osrf_gear/GetMaterialLocations.h"
 #include "osrf_gear/LogicalCameraImage.h"
+#include "osrf_gear/VacuumGripperControl.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/Point.h"
 #include "geometry_msgs/Quaternion.h"
@@ -46,7 +47,7 @@ bool has_found_joint_states = false;
 double T_pose[4][4], T_des[4][4];
 double q_pose[6], q_sols[8][6];
 double best_solution[6];
-double home_position[7] {0.03874, -3.00, -0.9, 1.5, 3.022, -1.615, 0.0445};
+double home_position[7] {0.03874, 3.1, -0.9, 1.5, 3.022, -1.615, 0.0445};
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
@@ -414,7 +415,13 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
     add_point_to_trajectory(trajectory_action, time_from_start, &home_position[1], home_arm_position);   
 }
 
-void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
+void set_suction(ros::ServiceClient& begin_client, bool is_enabled)
+{
+    begin_client.request.enabled = is_enabled;
+    begin_client.call();
+}
+
+void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, ros::ServiceClient& begin_client)
 {
     //offset so above
     goal_pose.pose.position.z += 0.3; 
@@ -423,11 +430,11 @@ void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::Si
     initialize_trajectory(joint_trajectory_as);
     add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
 
-    goal_pose.pose.position.z -= 0.25;
+    goal_pose.pose.position.z -= 0.28;
     inverse_desired_pos(goal_pose);
     add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(4.0));
     
-
+    set_suction(begin_client, true);
     //move_to_best_position(joint_trajectory_as);
     
     ROS_INFO("finished moving");
@@ -450,6 +457,9 @@ int main(int argc, char** argv)
 
     ros::ServiceClient begin_client = node_handle.serviceClient<std_srvs::Trigger>("/ariac/start_competition");
     ros::ServiceClient kit_lookup_client = node_handle.serviceClient<osrf_gear::GetMaterialLocations>("/ariac/material_locations");
+    ros::ServiceClient kit_lookup_client = node_handle.serviceClient<osrf_gear::GetMaterialLocations>("/ariac/material_locations");
+    ros::ServiceClient vacuum_client = node_handle.serviceClient<osrf_gear::VacuumGripperControl("/ariac/gripper/control");
+
     ros::Subscriber order_subscriber = node_handle.subscribe("/ariac/orders", 200, new_order_callback);
     ros::Subscriber logical_camera_subscriber = node_handle.subscribe("/ariac/logical_camera", 200, camera_callback);
     ros::Subscriber joint_state_subscriber = node_handle.subscribe("/ariac/joint_states", 10, joint_state_listener);
