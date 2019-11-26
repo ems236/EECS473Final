@@ -414,6 +414,30 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
     add_point_to_trajectory(trajectory_action, time_from_start, &home_position[1], home_arm_position);   
 }
 
+void move_to_point_and_grip(geometry_msgs::Pose& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
+{
+    //offset so above
+    goal_pose.position.z += 0.3; 
+    inverse_desired_pos(goal_pose);
+    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
+    initialize_trajectory(joint_trajectory_as);
+    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
+
+    goal_pose.position.z -= 0.25;
+    inverse_desired_pos(goal_pose);
+    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0));
+    
+
+    //move_to_best_position(joint_trajectory_as);
+    
+    ROS_INFO("finished moving");
+    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
+    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
+
+
+    //GRIP
+}
+
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "lab_3_ariac");
@@ -478,21 +502,8 @@ int main(int argc, char** argv)
             {
                 geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
                 print_pose("Object location in base_link", goal_pose.pose);
-                //offset so above
-                goal_pose.pose.position.z += 0.3; 
-                inverse_desired_pos(goal_pose);
                 
-                ROS_INFO("looking up position");
-                
-                control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
-                initialize_trajectory(joint_trajectory_as);
-                add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
-                //move_to_best_position(joint_trajectory_as);
-                
-                ROS_INFO("finished moving");
-                actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
-                ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
-
+                move_to_point_and_grip(goal_pose.pose, trajectory_as);
                 ros::Duration(3.0).sleep();
             }
         }
