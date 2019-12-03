@@ -437,6 +437,19 @@ void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajecto
     trajectory_action.action_goal.goal.trajectory = joint_trajectory;
 }
 
+void add_linear_move_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, double linear_position)
+{
+    int last_index = joint_trajectory.points.size() - 1;
+    joint_trajectory.points[last_index].positions.resize(joint_trajectory.joint_names.size());
+    joint_trajectory.points[last_index].positions[0] = linear_position;
+    for (int indy = 1; indy < joint_trajectory.joint_names.size(); indy++) 
+    {
+        string current_name = joint_trajectory.joint_names[indy];
+        joint_trajectory.points[last_index].positions[indy] = joint_state_map[current_name];
+        ROS_INFO("%s is at point %f", current_name.c_str(), joint_state_map[current_name]);
+    }
+}
+
 void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, double* joint_positions)
 {
     add_point_to_trajectory(trajectory_action, time_from_start, joint_positions, joint_state_map["linear_arm_actuator_joint"]);   
@@ -569,6 +582,7 @@ int main(int argc, char** argv)
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
+    add_linear_move_to_trajectory(home_position[0], ros::Duration(2.0));
     add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0));
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
