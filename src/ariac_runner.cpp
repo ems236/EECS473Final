@@ -515,7 +515,7 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     control_msgs::FollowJointTrajectoryAction over_tray_joint_trajectory_as;
     initialize_trajectory(over_tray_joint_trajectory_as);
     add_world_point_to_trajectory(over_tray_joint_trajectory_as, ros::Duration(2.0), goal_pose);
-    state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
+    state = trajectory_as.sendGoalAndWait(over_tray_joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
 
     ROS_INFO("Moved to dropoff");
