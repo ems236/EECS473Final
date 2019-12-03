@@ -285,7 +285,7 @@ void apply_solution_constraints(int num_sols)
     int best_index = 0;
     int best_heuristic_count = 0;
 
-    bool should_normalize_positive = {true, false, false, false, false, false};
+    bool should_normalize_positive[6] = {true, false, false, false, false, false};
 
     int heuristic_weight[6] = {10, 10, 10, 0, 0, 0};
     float lowerBounds[6] = {-1.0 * PI / 2, -1.0f * PI, PI / 6.0, PI, PI, PI};
@@ -320,7 +320,7 @@ void apply_solution_constraints(int num_sols)
         }
         else
         {
-            best_solution[joint_index] = angles::normalize_angle(non_normalized_angle)
+            best_solution[joint_index] = angles::normalize_angle(non_normalized_angle);
         }
     }
     //best_solution = q_sols[0];    
