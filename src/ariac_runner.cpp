@@ -439,6 +439,7 @@ void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajecto
 
 void add_linear_move_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, double linear_position)
 {
+    trajectory_msgs::JointTrajectory joint_trajectory = trajectory_action.action_goal.goal.trajectory;
     int last_index = joint_trajectory.points.size() - 1;
     joint_trajectory.points[last_index].positions.resize(joint_trajectory.joint_names.size());
     joint_trajectory.points[last_index].positions[0] = linear_position;
@@ -582,7 +583,7 @@ int main(int argc, char** argv)
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
-    add_linear_move_to_trajectory(home_position[0], ros::Duration(2.0));
+    add_linear_move_to_trajectory(joint_trajectory_as, ros::Duration(2.0), home_position[0]);
     add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0));
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
