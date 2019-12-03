@@ -505,7 +505,7 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     initialize_trajectory(joint_trajectory_as);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0), dropoff_orientation);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0), dropoff_orientation, dropoff_linear_position);
-    //add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0), goal_pose);
+    add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0), goal_pose);
 
 
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
@@ -596,16 +596,16 @@ int main(int argc, char** argv)
     ros::Duration(1.0).sleep();
     ros::spinOnce();
 
-    //move_to_dropoff(trajectory_as, tfBuffer);
+    move_to_dropoff(trajectory_as, tfBuffer);
 
     ros::Duration(1.0).sleep();
     
-    
+    /*
     while(!have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
     {
         ros::spinOnce();
         loop_rate.sleep();
-    }
+    }*/
     
     ros::AsyncSpinner spinner(1);
     spinner.start();
@@ -613,7 +613,7 @@ int main(int argc, char** argv)
     
     //ROS_INFO("Moved home");
 
-    
+    /*
     //Main loop
     while(ros::ok())
     {    
@@ -655,7 +655,7 @@ int main(int argc, char** argv)
         }
 
         */
-    }
+    //}
     
     //process all callbacks
     ros::spinOnce();
