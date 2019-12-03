@@ -514,7 +514,7 @@ int main(int argc, char** argv)
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as_test;
     initialize_trajectory(joint_trajectory_as_test);
-    add_home_point_to_trajectory(joint_trajectory_as_test, ros::Duration(5.0));
+    add_dropoff_point_to_trajectory(joint_trajectory_as_test, ros::Duration(5.0));
     state = trajectory_as.sendGoalAndWait(joint_trajectory_as_test.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
     ROS_INFO("Moved to dropoff");
