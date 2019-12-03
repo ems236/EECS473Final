@@ -481,12 +481,13 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     lookup_agv_tray_position(&tray_pose_local);
     geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, tray_pose_local, "logical_camera_over_agv1_frame");
     goal_pose.pose.position.z += 0.1;
+    print_pose(goal_pose);
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0), dropoff_orientation);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0), dropoff_orientation, dropoff_linear_position);
-    add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0), goal_pose);
+    //add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0), goal_pose);
 
 
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
