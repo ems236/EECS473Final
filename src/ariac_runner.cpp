@@ -429,7 +429,7 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
 
 void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
 {
-    double dropoff_orientation[6] {4.71, -1.57, 0.9, 3.022, -1.65, 0.0445};
+    double dropoff_orientation[6] {4.71, -1.57, -0.9, 3.022, -1.65, 0.0445};
     double dropoff_linear_position = -2;
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
@@ -530,17 +530,17 @@ int main(int argc, char** argv)
 
     ros::Duration(1.0).sleep();
 
-    //move_to_dropoff(trajectory_as);
+    move_to_dropoff(trajectory_as);
 
     ros::Duration(1.0).sleep();
     
-    
+    /*
     while(!have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
     {
         ros::spinOnce();
         loop_rate.sleep();
     }
-    
+    */
 
     ros::AsyncSpinner spinner(1);
     spinner.start();
@@ -548,7 +548,7 @@ int main(int argc, char** argv)
     
     //ROS_INFO("Moved home");
 
-    
+    /*
     //Main loop
     while(ros::ok())
     {    
@@ -590,7 +590,7 @@ int main(int argc, char** argv)
         }
 
         */
-    }
+    //}
     
     //process all callbacks
     ros::spinOnce();
