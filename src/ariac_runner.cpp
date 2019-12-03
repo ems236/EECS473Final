@@ -530,25 +530,25 @@ int main(int argc, char** argv)
 
     ros::Duration(1.0).sleep();
 
-    move_to_dropoff(trajectory_as);
+    //move_to_dropoff(trajectory_as);
 
     ros::Duration(1.0).sleep();
     
-    /*
+    
     while(!have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
     {
         ros::spinOnce();
         loop_rate.sleep();
     }
-    */
+    
 
     ros::AsyncSpinner spinner(1);
     spinner.start();
 
     
-    ROS_INFO("Moved home");
+    //ROS_INFO("Moved home");
 
-    /*
+    
     //Main loop
     while(ros::ok())
     {    
@@ -590,7 +590,7 @@ int main(int argc, char** argv)
         }
 
         */
-    //}
+    }
     
     //process all callbacks
     ros::spinOnce();
