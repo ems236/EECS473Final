@@ -517,8 +517,19 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     add_world_point_to_trajectory(over_tray_joint_trajectory_as, ros::Duration(2.0), goal_pose);
     state = trajectory_as.sendGoalAndWait(over_tray_joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
-
     ROS_INFO("Moved to dropoff");
+
+    set_suction(begin_client, false);
+
+    control_msgs::FollowJointTrajectoryAction return_home_joint_trajectory_as;
+    initialize_trajectory(return_home_joint_trajectory_as);
+    add_point_to_trajectory(return_home_joint_trajectory_as, ros::Duration(2.0), dropoff_orientation);
+    add_linear_move_to_trajectory(joint_trajectory_as, ros::Duration(4.0), home_position[0]);
+    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0));
+    
+    state = trajectory_as.sendGoalAndWait(return_home_joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
+    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
+    ROS_INFO("Moved to home");
 }
 
 void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, ros::ServiceClient& begin_client)
@@ -547,9 +558,6 @@ void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::Si
 
 
     state = trajectory_as.sendGoalAndWait(joint_trajectory_drop.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
-    set_suction(begin_client, false);
-
-
     ROS_INFO("finished moving");
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
 
@@ -607,21 +615,21 @@ int main(int argc, char** argv)
     ros::Duration(1.0).sleep();
     ros::spinOnce();
 
-    move_to_dropoff(trajectory_as, tfBuffer);
+    //move_to_dropoff(trajectory_as, tfBuffer);
 
     ros::Duration(1.0).sleep();
     
-    /*
+    
     while(!have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
     {
         ros::spinOnce();
         loop_rate.sleep();
-    }*/
+    }
 
     
     //ROS_INFO("Moved home");
 
-    /*
+    
     //Main loop
     while(ros::ok())
     {    
@@ -634,7 +642,8 @@ int main(int argc, char** argv)
                 print_pose("Object location in base_link", goal_pose.pose);
                 
                 move_to_point_and_grip(goal_pose, trajectory_as, vacuum_client);
-                ros::Duration(3.0).sleep();
+                ros::Duration(0.5).sleep();
+                move_to_dropoff(trajectory_as, tfBuffer);
             }
         }
         /*
@@ -663,7 +672,7 @@ int main(int argc, char** argv)
         }
 
         */
-    //}
+    }
     
     //process all callbacks
     ros::spinOnce();
