@@ -529,6 +529,7 @@ int main(int argc, char** argv)
     ROS_INFO("Moved home");
 
     ros::Duration(1.0).sleep();
+    ros::spinOnce();
 
     move_to_dropoff(trajectory_as);
 
