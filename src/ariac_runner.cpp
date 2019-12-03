@@ -285,6 +285,8 @@ void apply_solution_constraints(int num_sols)
     int best_index = 0;
     int best_heuristic_count = 0;
 
+    bool should_normalize_positive = {true, false, false, false, false, false};
+
     int heuristic_weight[6] = {10, 10, 10, 0, 0, 0};
     float lowerBounds[6] = {-1.0 * PI / 2, -1.0f * PI, PI / 6.0, PI, PI, PI};
     float higherBound[6] = {PI / 2.0, 0, PI, 2.0f * PI, 2.0f * PI, 2.0f * PI};
@@ -311,7 +313,15 @@ void apply_solution_constraints(int num_sols)
     ROS_INFO("Picking index %i as the best solution", best_index);
     for(int joint_index = 0; joint_index < 6; joint_index++)
     {
-        best_solution[joint_index] = angles::normalize_angle(q_sols[best_index][joint_index]);
+        float non_normalized_angle = q_sols[best_index][joint_index];
+        if(should_normalize_positve[joint_index])
+        {
+            best_solution[joint_index] = angles::normalize_angle_positive(non_normalized_angle);
+        }
+        else
+        {
+            best_solution[joint_index] = angles::normalize_angle(non_normalized_angle)
+        }
     }
     //best_solution = q_sols[0];    
 }
@@ -419,13 +429,13 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
 
 void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
 {
-    double dropoff_orientation[6] {-1.57, -1.57, 0.5, 3.022, -1.65, 0.0445};
+    double dropoff_orientation[6] {-1.57, 4.71, 0.5, 3.022, -1.65, 0.0445};
     double dropoff_linear_position = -3;
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.5), dropoff_orientation);
-    add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.5), dropoff_orientation, dropoff_linear_position);
+    add_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0), dropoff_orientation, dropoff_linear_position);
 
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
