@@ -389,6 +389,8 @@ void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajecto
     //joint_trajectory.points[last_index].positions.clear();
     // Set the linear_arm_actuator_joint from joint_states as it is not part of the inverse kinematics solution.
     joint_trajectory.points[last_index].positions[0] = arm_position;
+    ROS_INFO("%s is moving to point %f", joint_trajectory.joint_names[0].c_str(), arm_position);
+
     // The actuators are commanded in an odd order, enter the joint positions in the correct positions
     for (int indy = 0; indy < 6; indy++) 
     {
@@ -519,12 +521,13 @@ int main(int argc, char** argv)
 
     ros::Duration(1.0).sleep();
     
-
+    /*
     while(!have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
     {
         ros::spinOnce();
         loop_rate.sleep();
     }
+    */
 
     ros::AsyncSpinner spinner(1);
     spinner.start();
