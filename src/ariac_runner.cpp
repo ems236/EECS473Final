@@ -314,7 +314,7 @@ void apply_solution_constraints(int num_sols)
     for(int joint_index = 0; joint_index < 6; joint_index++)
     {
         float non_normalized_angle = q_sols[best_index][joint_index];
-        if(should_normalize_positve[joint_index])
+        if(should_normalize_positive[joint_index])
         {
             best_solution[joint_index] = angles::normalize_angle_positive(non_normalized_angle);
         }
