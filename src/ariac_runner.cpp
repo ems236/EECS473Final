@@ -464,7 +464,7 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     initialize_trajectory(joint_trajectory_as);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0), dropoff_orientation);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0), dropoff_orientation, dropoff_linear_position);
-    add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0), dropoff_world_x, dropoff_world_y, dropoff_world_z)
+    add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0), dropoff_world_x, dropoff_world_y, dropoff_world_z);
 
 
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
