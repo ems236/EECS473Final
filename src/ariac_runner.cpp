@@ -495,8 +495,6 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     double dropoff_orientation[6] {1.57, -1.57, 1.5, 3.022, -1.65, 0.0445};
     double dropoff_linear_position = 2.1;
 
-    print_pose("Agv kit pose in world", goal_pose.pose);
-
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0), dropoff_orientation);
@@ -510,6 +508,8 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     geometry_msgs::Pose tray_pose_local; 
     lookup_agv_tray_position(&tray_pose_local);
     geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, tray_pose_local, "logical_camera_over_agv1_frame");
+    print_pose("Agv kit pose in world", goal_pose.pose);
+
     goal_pose.pose.position.z += 0.1;
 
     control_msgs::FollowJointTrajectoryAction over_tray_joint_trajectory_as;
