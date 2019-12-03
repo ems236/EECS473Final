@@ -584,7 +584,7 @@ int main(int argc, char** argv)
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
     add_linear_move_to_trajectory(joint_trajectory_as, ros::Duration(2.0), home_position[0]);
-    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0));
+    //add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0));
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
     ROS_INFO("Moved home");
