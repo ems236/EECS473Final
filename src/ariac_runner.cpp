@@ -344,7 +344,7 @@ void inverse_desired_pos(float x, float y, float z)
 
 void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
 {
-    inverse_desired_pos(desired_pose.pose.position.x, desired_pose.pose.position.y, desired_pose.pose.position.z)
+    inverse_desired_pos(desired_pose.pose.position.x, desired_pose.pose.position.y, desired_pose.pose.position.z);
 }
 
 void initialize_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action)
