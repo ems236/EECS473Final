@@ -530,7 +530,7 @@ int main(int argc, char** argv)
 
     ros::Duration(1.0).sleep();
 
-    //move_to_dropoff(trajectory_as);
+    move_to_dropoff(trajectory_as);
 
     ros::Duration(1.0).sleep();
     
