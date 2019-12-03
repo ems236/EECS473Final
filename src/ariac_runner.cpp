@@ -481,7 +481,7 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     lookup_agv_tray_position(&tray_pose_local);
     geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, tray_pose_local, "logical_camera_over_agv1_frame");
     goal_pose.pose.position.z += 0.1;
-    print_pose(goal_pose);
+    print_pose("Agv kit pose in world", goal_pose);
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
