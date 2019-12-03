@@ -500,10 +500,10 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0), dropoff_orientation);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0), dropoff_orientation, dropoff_linear_position);
 
-    ros::spinOnce();
-
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
+
+    ros::spinOnce();
 
     geometry_msgs::Pose tray_pose_local; 
     lookup_agv_tray_position(&tray_pose_local);
@@ -593,6 +593,9 @@ int main(int argc, char** argv)
         loop_rate.sleep();
     }
 
+    ros::AsyncSpinner spinner(1);
+    spinner.start();
+
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
     add_linear_move_to_trajectory(joint_trajectory_as, ros::Duration(2.0), home_position[0]);
@@ -614,9 +617,6 @@ int main(int argc, char** argv)
         ros::spinOnce();
         loop_rate.sleep();
     }*/
-    
-    ros::AsyncSpinner spinner(1);
-    spinner.start();
 
     
     //ROS_INFO("Moved home");
