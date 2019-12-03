@@ -524,8 +524,8 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     control_msgs::FollowJointTrajectoryAction return_home_joint_trajectory_as;
     initialize_trajectory(return_home_joint_trajectory_as);
     add_point_to_trajectory(return_home_joint_trajectory_as, ros::Duration(2.0), dropoff_orientation);
-    add_linear_move_to_trajectory(joint_trajectory_as, ros::Duration(4.0), home_position[0]);
-    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0));
+    add_linear_move_to_trajectory(return_home_joint_trajectory_as, ros::Duration(4.0), home_position[0]);
+    add_home_point_to_trajectory(return_home_joint_trajectory_as, ros::Duration(7.0));
     
     state = trajectory_as.sendGoalAndWait(return_home_joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
