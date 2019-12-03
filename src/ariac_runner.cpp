@@ -429,7 +429,7 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
 
 void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
 {
-    double dropoff_orientation[6] {4.71, -1.57, -0.9, 3.022, -1.65, 0.0445};
+    double dropoff_orientation[6] {4.71, -1.57, 1.5, 3.022, -1.65, 0.0445};
     double dropoff_linear_position = -2;
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
