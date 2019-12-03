@@ -48,6 +48,7 @@ double T_pose[4][4], T_des[4][4];
 double q_pose[6], q_sols[8][6];
 double best_solution[6];
 double home_position[7] {0.03874, 3.1, -0.9, 1.5, 3.022, -1.615, 0.0445};
+double dropoff_position[7] {1, -1.57, -0.9, 1.5, 3.022, -1.615, 0.0445};
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
@@ -415,6 +416,12 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
     add_point_to_trajectory(trajectory_action, time_from_start, &home_position[1], home_arm_position);   
 }
 
+void add_dropoff_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start)
+{
+    float dropoff_arm_position = dropoff_position[0];
+    add_point_to_trajectory(trajectory_action, time_from_start, &dropoff_position[1], dropoff_arm_position);   
+}
+
 void set_suction(ros::ServiceClient& begin_client, bool is_enabled)
 {
     osrf_gear::VacuumGripperControl vaccuum_call;
@@ -502,7 +509,13 @@ int main(int argc, char** argv)
 
     ros::Duration(1.0).sleep();
 
+    control_msgs::FollowJointTrajectoryAction joint_trajectory_as_test;
+    initialize_trajectory(joint_trajectory_as_test);
+    add_home_point_to_trajectory(joint_trajectory_as_test, ros::Duration(5.0));
+    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as_test.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
+    ros::Duration(1.0).sleep();
     
+
     while(!have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
     {
         ros::spinOnce();
@@ -515,6 +528,7 @@ int main(int argc, char** argv)
     
     ROS_INFO("Moved home");
 
+    /*
     //Main loop
     while(ros::ok())
     {    
@@ -556,8 +570,8 @@ int main(int argc, char** argv)
         }
 
         */
-    }
-
+    //}
+    
     //process all callbacks
     ros::spinOnce();
     loop_rate.sleep();
