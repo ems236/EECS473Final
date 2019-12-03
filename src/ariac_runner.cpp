@@ -490,7 +490,7 @@ void add_world_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tr
     add_best_point_to_trajectory(trajectory_action, time_from_start);
 }
 
-void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, tf2_ros::Buffer &tfBuffer)
+void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, tf2_ros::Buffer &tfBuffer, ros::ServiceClient& grip_client)
 {
     double dropoff_orientation[6] {1.57, -1.57, 1.5, 3.022, -1.65, 0.0445};
     double dropoff_linear_position = 2.1;
@@ -519,7 +519,7 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
     ROS_INFO("Moved to dropoff");
 
-    set_suction(begin_client, false);
+    set_suction(grip_client, false);
 
     control_msgs::FollowJointTrajectoryAction return_home_joint_trajectory_as;
     initialize_trajectory(return_home_joint_trajectory_as);
@@ -532,7 +532,7 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
     ROS_INFO("Moved to home");
 }
 
-void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, ros::ServiceClient& begin_client)
+void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, ros::ServiceClient& grip_client)
 {
     //offset so above
     goal_pose.pose.position.z += 0.3; 
@@ -547,7 +547,7 @@ void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::Si
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
     
-    set_suction(begin_client, true);
+    set_suction(grip_client, true);
     //move_to_best_position(joint_trajectory_as);
     ros::Duration(1.0).sleep();
 
@@ -643,7 +643,7 @@ int main(int argc, char** argv)
                 
                 move_to_point_and_grip(goal_pose, trajectory_as, vacuum_client);
                 ros::Duration(0.5).sleep();
-                move_to_dropoff(trajectory_as, tfBuffer);
+                move_to_dropoff(trajectory_as, tfBuffer, vacuum_client);
             }
         }
         /*
