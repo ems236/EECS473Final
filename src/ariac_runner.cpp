@@ -580,13 +580,13 @@ int main(int argc, char** argv)
 
     ros::Duration(1.0).sleep();
     
-    
+    /*
     while(!have_valid_orders(begin_client, &loop_rate, kit_lookup_client))
     {
         ros::spinOnce();
         loop_rate.sleep();
     }
-    
+    */
 
     ros::AsyncSpinner spinner(1);
     spinner.start();
@@ -594,7 +594,7 @@ int main(int argc, char** argv)
     
     //ROS_INFO("Moved home");
 
-    
+    /*
     //Main loop
     while(ros::ok())
     {    
@@ -636,7 +636,7 @@ int main(int argc, char** argv)
         }
 
         */
-    }
+    //}
     
     //process all callbacks
     ros::spinOnce();
