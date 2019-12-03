@@ -434,8 +434,8 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
-    add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.5), dropoff_orientation);
-    add_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0), dropoff_orientation, dropoff_linear_position);
+    add_point_to_trajectory(joint_trajectory_as, ros::Duration(4.0), dropoff_orientation);
+    add_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0), dropoff_orientation, dropoff_linear_position);
 
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
@@ -523,7 +523,7 @@ int main(int argc, char** argv)
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
-    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
+    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(10.0));
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
     ROS_INFO("Moved home");
