@@ -326,11 +326,11 @@ void apply_solution_constraints(int num_sols)
     //best_solution = q_sols[0];    
 }
 
-void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
+void inverse_desired_pos(float x, float y, float z)
 {
-    T_des[0][3] = desired_pose.pose.position.x;
-    T_des[1][3] = desired_pose.pose.position.y;
-    T_des[2][3] = desired_pose.pose.position.z; // above part
+    T_des[0][3] = x;
+    T_des[1][3] = y;
+    T_des[2][3] = z; // above part
     T_des[3][3] = 1.0;
     // The orientation of the end effector so that the end effector is down.
     T_des[0][0] = 0.0; T_des[0][1] = -1.0; T_des[0][2] = 0.0;
@@ -340,6 +340,11 @@ void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
 
     int num_sols = ur_kinematics::inverse((double *)&T_des, (double *)&q_sols);
     apply_solution_constraints(num_sols);
+}
+
+void inverse_desired_pos(geometry_msgs::PoseStamped& desired_pose)
+{
+    inverse_desired_pos(desired_pose.pose.position.x, desired_pose.pose.position.y, desired_pose.pose.position.z)
 }
 
 void initialize_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action)
@@ -427,21 +432,6 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
     add_point_to_trajectory(trajectory_action, time_from_start, &home_position[1], home_arm_position);   
 }
 
-void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
-{
-    double dropoff_orientation[6] {4.71, -1.57, 1.5, 3.022, -1.65, 0.0445};
-    double dropoff_linear_position = -2;
-
-    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
-    initialize_trajectory(joint_trajectory_as);
-    add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0), dropoff_orientation);
-    add_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0), dropoff_orientation, dropoff_linear_position);
-
-    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
-    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
-    ROS_INFO("Moved to dropoff");
-}
-
 void set_suction(ros::ServiceClient& begin_client, bool is_enabled)
 {
     osrf_gear::VacuumGripperControl vaccuum_call;
@@ -449,18 +439,50 @@ void set_suction(ros::ServiceClient& begin_client, bool is_enabled)
     begin_client.call(vaccuum_call);
 }
 
+void add_world_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, geometry_msgs::PoseStamped& goal_pose)
+{
+    inverse_desired_pos(goal_pose);
+    add_best_point_to_trajectory(trajectory_action, time_from_start);
+}
+
+void add_world_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, float x, float y, float z)
+{
+    inverse_desired_pos(x, y, z);
+    add_best_point_to_trajectory(trajectory_action, time_from_start);
+}
+
+void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
+{
+    double dropoff_orientation[6] {4.71, -1.57, 1.5, 3.022, -1.65, 0.0445};
+    double dropoff_linear_position = -2.1;
+
+    double dropoff_world_x = 0.3;
+    double dropoff_world_y = -3.3;
+    double dropoff_world_z = 0.8;
+
+    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
+    initialize_trajectory(joint_trajectory_as);
+    add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0), dropoff_orientation);
+    add_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0), dropoff_orientation, dropoff_linear_position);
+    add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0), dropoff_world_x, dropoff_world_y, dropoff_world_z)
+
+
+    actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
+    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
+    ROS_INFO("Moved to dropoff");
+}
+
 void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, ros::ServiceClient& begin_client)
 {
     //offset so above
     goal_pose.pose.position.z += 0.3; 
-    inverse_desired_pos(goal_pose);
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
-    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0));
+    add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(3.0), goal_pose);
 
     goal_pose.pose.position.z -= 0.28;
-    inverse_desired_pos(goal_pose);
-    add_best_point_to_trajectory(joint_trajectory_as, ros::Duration(4.0));
+    add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(4.0), goal_pose);
+
 
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
@@ -472,8 +494,8 @@ void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::Si
     control_msgs::FollowJointTrajectoryAction joint_trajectory_drop;
     initialize_trajectory(joint_trajectory_drop);
     goal_pose.pose.position.z += 0.28;
-    inverse_desired_pos(goal_pose);
-    add_best_point_to_trajectory(joint_trajectory_drop, ros::Duration(1.0));
+    add_world_point_to_trajectory(joint_trajectory_drop, ros::Duration(1.0), goal_pose);
+
 
     state = trajectory_as.sendGoalAndWait(joint_trajectory_drop.action_goal.goal, ros::Duration(30.0), ros::Duration(3.0));
     set_suction(begin_client, false);
@@ -523,7 +545,7 @@ int main(int argc, char** argv)
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
-    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(10.0));
+    add_home_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0));
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
     ROS_INFO("Moved home");
