@@ -440,8 +440,10 @@ void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajecto
 void add_linear_move_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, double linear_position)
 {
     trajectory_msgs::JointTrajectory joint_trajectory = trajectory_action.action_goal.goal.trajectory;
+    joint_trajectory.points.resize(joint_trajectory.points.size() + 1);
     int last_index = joint_trajectory.points.size() - 1;
     joint_trajectory.points[last_index].positions.resize(joint_trajectory.joint_names.size());
+    
     joint_trajectory.points[last_index].positions[0] = linear_position;
     for (int indy = 1; indy < joint_trajectory.joint_names.size(); indy++) 
     {
