@@ -48,7 +48,6 @@ double T_pose[4][4], T_des[4][4];
 double q_pose[6], q_sols[8][6];
 double best_solution[6];
 double home_position[7] {0.03874, 3.1, -0.9, 1.5, 3.022, -1.615, 0.0445};
-double dropoff_position[7] {1, -1.57, -0.9, 1.5, 3.022, -1.615, 0.0445};
 
 int current_kit_index = 0;
 int current_kit_object_index = 0;
@@ -418,10 +417,19 @@ void add_home_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tra
     add_point_to_trajectory(trajectory_action, time_from_start, &home_position[1], home_arm_position);   
 }
 
-void add_dropoff_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start)
+void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
 {
-    float dropoff_arm_position = dropoff_position[0];
-    add_point_to_trajectory(trajectory_action, time_from_start, &dropoff_position[1], dropoff_arm_position);   
+    double dropoff_orientation[6] {-1.57, -1.57, 0.5, 3.022, -1.65, 0.0445};
+    double dropoff_linear_position = -3;
+
+    control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
+    initialize_trajectory(joint_trajectory_as);
+    add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.5), dropoff_orientation);
+    add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.5), dropoff_orientation, dropoff_linear_position);
+
+    state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
+    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
+    ROS_INFO("Moved to dropoff");
 }
 
 void set_suction(ros::ServiceClient& begin_client, bool is_enabled)
@@ -512,12 +520,7 @@ int main(int argc, char** argv)
 
     ros::Duration(1.0).sleep();
 
-    control_msgs::FollowJointTrajectoryAction joint_trajectory_as_test;
-    initialize_trajectory(joint_trajectory_as_test);
-    add_dropoff_point_to_trajectory(joint_trajectory_as_test, ros::Duration(5.0));
-    state = trajectory_as.sendGoalAndWait(joint_trajectory_as_test.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
-    ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
-    ROS_INFO("Moved to dropoff");
+    move_to_dropoff(trajectory_as);
 
     ros::Duration(1.0).sleep();
     
