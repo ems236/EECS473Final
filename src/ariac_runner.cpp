@@ -472,15 +472,15 @@ void add_world_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tr
     add_best_point_to_trajectory(trajectory_action, time_from_start);
 }
 
-void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
+void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, tf2_ros::Buffer &tfBuffer)
 {
     double dropoff_orientation[6] {1.57, -1.57, 1.5, 3.022, -1.65, 0.0445};
     double dropoff_linear_position = 2.1;
 
     geometry_msgs::Pose tray_pose_local; 
-    lookup_agv_tray_position(geometry_msgs::Pose* tray_pose_local);
+    lookup_agv_tray_position(&tray_pose_local);
     geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, tray_pose_local, "logical_camera_over_agv1_frame");
-    goal_pose.pose.z += 0.1;
+    goal_pose.pose.position.z += 0.1;
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
@@ -576,7 +576,7 @@ int main(int argc, char** argv)
     ros::Duration(1.0).sleep();
     ros::spinOnce();
 
-    //move_to_dropoff(trajectory_as);
+    move_to_dropoff(trajectory_as, tfBuffer);
 
     ros::Duration(1.0).sleep();
     
