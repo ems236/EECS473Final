@@ -38,6 +38,8 @@ using namespace std;
 bool has_started_competition = false;
 vector<osrf_gear::Order> current_orders;
 osrf_gear::LogicalCameraImage camera_data;
+osrf_gear::LogicalCameraImage agv_camera_data;
+
 //sensor_msgs::JointState joint_states;
 
 map<string, float> joint_state_map;
@@ -179,6 +181,24 @@ void camera_callback(const osrf_gear::LogicalCameraImage& camera_info)
     camera_data = camera_info;
 }
 
+void agv_camera_callback(const osrf_gear::LogicalCameraImage& camera_info)
+{
+    agv_camera_data = camera_info;
+}
+
+bool lookup_agv_tray_position(geometry_msgs::Pose* pose)
+{
+    for(osrf_gear::Model current : agv_camera_data.models)
+    {
+        if(current.type == "kit_tray")
+        {
+            *pose = current.pose;
+            return true;
+        }
+    }
+    return false;
+}
+
 void joint_state_listener(const sensor_msgs::JointState& joint_state)
 {
     for(int joint_index = 0; joint_index < joint_state.name.size(); joint_index++)
@@ -222,7 +242,7 @@ void offset_target_position(geometry_msgs::PoseStamped* goal_pose)
     goal_pose->pose.orientation.z = 0.0;
 }
 
-geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose)
+geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer, geometry_msgs::Pose& logical_pose, string current_frame)
 {
     //ROS_INFO("Converting the logical camera pose to world coordinates.");
     // Retrieve the transformation
@@ -232,7 +252,8 @@ geometry_msgs::PoseStamped logical_camera_to_base_link(tf2_ros::Buffer& tfBuffer
     {
         tf_logical_to_world = tfBuffer.lookupTransform(
             "world",
-            "logical_camera_frame", ros::Time(0.0), ros::Duration(1.0)
+            //"logical_camera_frame", ros::Time(0.0), ros::Duration(1.0)
+            current_frame, ros::Time(0.0), ros::Duration(1.0)
         );
 
         tf_world_to_base_link = tfBuffer.lookupTransform(
@@ -453,18 +474,19 @@ void add_world_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tr
 
 void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as)
 {
-    double dropoff_orientation[6] {4.71, -1.57, 1.5, 3.022, -1.65, 0.0445};
-    double dropoff_linear_position = -2.1;
+    double dropoff_orientation[6] {1.57, -1.57, 1.5, 3.022, -1.65, 0.0445};
+    double dropoff_linear_position = 2.1;
 
-    double dropoff_world_x = 0.3;
-    double dropoff_world_y = -3.3;
-    double dropoff_world_z = 0.8;
+    geometry_msgs::Pose tray_pose_local; 
+    lookup_agv_tray_position(geometry_msgs::Pose* tray_pose_local);
+    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, tray_pose_local, "logical_camera_over_agv1_frame");
+    goal_pose.pose.z += 0.1;
 
     control_msgs::FollowJointTrajectoryAction joint_trajectory_as;
     initialize_trajectory(joint_trajectory_as);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(1.0), dropoff_orientation);
     add_point_to_trajectory(joint_trajectory_as, ros::Duration(5.0), dropoff_orientation, dropoff_linear_position);
-    add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0), dropoff_world_x, dropoff_world_y, dropoff_world_z);
+    add_world_point_to_trajectory(joint_trajectory_as, ros::Duration(7.0), goal_pose);
 
 
     actionlib::SimpleClientGoalState state = trajectory_as.sendGoalAndWait(joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
@@ -524,6 +546,7 @@ int main(int argc, char** argv)
 
     ros::Subscriber order_subscriber = node_handle.subscribe("/ariac/orders", 200, new_order_callback);
     ros::Subscriber logical_camera_subscriber = node_handle.subscribe("/ariac/logical_camera", 200, camera_callback);
+    ros::Subscriber agv_logical_camera_subscriber = node_handle.subscribe("/ariac/logical_camera_over_agv1", 200, agv_camera_callback);
     ros::Subscriber joint_state_subscriber = node_handle.subscribe("/ariac/joint_states", 10, joint_state_listener);
     
     ros::Publisher trajectory_publisher = node_handle.advertise<trajectory_msgs::JointTrajectory>("ariac/arm/command", 200);
@@ -580,7 +603,7 @@ int main(int argc, char** argv)
             geometry_msgs::Pose object_pose_local; 
             if(lookup_next_object(logical_object_index, &object_pose_local))
             {
-                geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local);
+                geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local, "logical_camera_frame");
                 print_pose("Object location in base_link", goal_pose.pose);
                 
                 move_to_point_and_grip(goal_pose, trajectory_as, vacuum_client);
