@@ -447,8 +447,7 @@ void add_linear_move_to_trajectory(control_msgs::FollowJointTrajectoryAction& tr
     joint_trajectory.points[last_index].positions[0] = linear_position;
     for (int indy = 1; indy < joint_trajectory.joint_names.size(); indy++) 
     {
-        string current_name = joint_trajectory.joint_names[indy];
-        joint_trajectory.points[last_index].positions[indy] = joint_state_map[current_name];
+        joint_trajectory.points[last_index].positions[indy] = joint_trajectory.points[last_index - 1].positions[indy]
     }
 
     joint_trajectory.points[last_index].time_from_start = time_from_start;
