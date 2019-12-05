@@ -505,7 +505,7 @@ void move_to_dropoff(
     actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as
     , tf2_ros::Buffer &tfBuffer
     , ros::ServiceClient& grip_client
-    , geometry_msgs::Pose& goal_pose
+    , geometry_msgs::Pose& target_pose
 )
 {
     double dropoff_orientation[6] {1.57, -1.57, 1.5, 3.022, -1.65, 0.0445};
@@ -523,7 +523,7 @@ void move_to_dropoff(
 
     //geometry_msgs::Pose tray_pose_local; 
     //lookup_agv_tray_position(&tray_pose_local);
-    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, goal_pose, "logical_camera_over_agv1_frame");
+    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, target_pose, "logical_camera_over_agv1_frame");
     //print_pose("Agv kit pose in world", goal_pose.pose);
 
     goal_pose.pose.position.z += 0.1;
