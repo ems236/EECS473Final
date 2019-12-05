@@ -167,16 +167,18 @@ void print_pose(string message, geometry_msgs::Pose& pose)
                 orientation.w);
 }
 
-geometry_msgs::Pose lookup_object_location(string type)
+bool lookup_object_location(string type, geometry_msgs::Pose* part_pose)
 {
+    //Only cares about the single logical camera
     for(int i = 0; camera_data.models.size(); i++)
     {
         osrf_gear::Model current = camera_data.models.at(i);
         if(current.type.compare(type) == 0)
         {
-            camera_model_index = i;
-            print_pose("Object of type" + type, current.pose); 
-            return current.pose;
+            //camera_model_index = i;
+            //print_pose("Object of type" + type, current.pose);
+            *part_pose = current.pose; 
+            return true;
         }
     }
 }
@@ -640,8 +642,8 @@ int main(int argc, char** argv)
 
     
     //Main loop
-    while(ros::ok())
-    {   
+    //while(ros::ok())
+    //{   
         ROS_INFO("%d orders", current_orders.size());
         for(osrf_gear::Order current_order : current_orders)
         {
@@ -654,8 +656,22 @@ int main(int argc, char** argv)
                 {
                     osrf_gear::KitObject current_object = current_kit.objects.at(kit_object_index);
                     ROS_INFO("Kit type: %s", current_object.type.c_str());
+
+                    bool was_successful = false;
+                    geometry_msgs::Pose object_pose_local; 
+                    if(lookup_object_location(current_object.type, &object_pose_local))
+                    {
+                        geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, object_pose_local, "logical_camera_frame");
+                        print_pose("Object location in base_link", goal_pose.pose);
+                        
+                        move_to_point_and_grip(goal_pose, trajectory_as, vacuum_client);
+                        ros::Duration(0.5).sleep();
+                        move_to_dropoff(trajectory_as, tfBuffer, vacuum_client);
+
+                        was_successful = true;
+                    }
                     //lookup / grab object
-                    bool was_successful = true;
+                    
                     if(was_successful)
                     {
                         kit_object_index++;
@@ -688,7 +704,7 @@ int main(int argc, char** argv)
                 move_to_dropoff(trajectory_as, tfBuffer, vacuum_client);
             }
         }*/
-                
+
         /*
         move_group.setPoseTarget(object_pose_world);
         //moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
@@ -715,7 +731,7 @@ int main(int argc, char** argv)
         }
 
         */
-    }
+    //}
     
     //process all callbacks
     
