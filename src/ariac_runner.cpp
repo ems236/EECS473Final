@@ -335,7 +335,7 @@ void apply_solution_constraints(int num_sols)
             }
         }
 
-        ROS_INFO("index %i satisfies %i heuristics", solution_index, heuristics_satisfied);
+        //ROS_INFO("index %i satisfies %i heuristics", solution_index, heuristics_satisfied);
         if(heuristics_satisfied > best_heuristic_count)
         {
             best_index = solution_index;
@@ -343,7 +343,7 @@ void apply_solution_constraints(int num_sols)
         }
     }
 
-    ROS_INFO("Picking index %i as the best solution", best_index);
+    //ROS_INFO("Picking index %i as the best solution", best_index);
     for(int joint_index = 0; joint_index < 6; joint_index++)
     {
         float non_normalized_angle = q_sols[best_index][joint_index];
@@ -407,7 +407,7 @@ void initialize_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory
     {
         string current_name = joint_trajectory.joint_names[indy];
         joint_trajectory.points[0].positions[indy] = joint_state_map[current_name];
-        ROS_INFO("%s is at point %f", current_name.c_str(), joint_state_map[current_name]);
+        //ROS_INFO("%s is at point %f", current_name.c_str(), joint_state_map[current_name]);
         /*
         for (int indz = 0; indz < joint_states.name.size(); indz++) 
         {
@@ -436,12 +436,12 @@ void add_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajecto
     //joint_trajectory.points[last_index].positions.clear();
     // Set the linear_arm_actuator_joint from joint_states as it is not part of the inverse kinematics solution.
     joint_trajectory.points[last_index].positions[0] = arm_position;
-    ROS_INFO("%s is moving to point %f", joint_trajectory.joint_names[0].c_str(), arm_position);
+    //ROS_INFO("%s is moving to point %f", joint_trajectory.joint_names[0].c_str(), arm_position);
 
     // The actuators are commanded in an odd order, enter the joint positions in the correct positions
     for (int indy = 0; indy < 6; indy++) 
     {
-        ROS_INFO("%s is moving to point %f", joint_trajectory.joint_names[indy + 1].c_str(), joint_positions[indy]);
+        //ROS_INFO("%s is moving to point %f", joint_trajectory.joint_names[indy + 1].c_str(), joint_positions[indy]);
         joint_trajectory.points[last_index].positions[indy + 1] = joint_positions[indy];
     }
     // How long to take for the movement.
