@@ -51,16 +51,21 @@ double q_pose[6], q_sols[8][6];
 double best_solution[6];
 double home_position[7] {0.03874, 3.1, -0.9, 1.5, 3.022, -1.615, 0.0445};
 
+/*
+//Old lookup data
 int current_kit_index = 0;
 int current_kit_object_index = 0;
 string current_model_type = "";
+*/
+
 int camera_model_index = -1;
 int sequence_number = 0;
 
+/*
 bool is_current_object_known()
 {
     return !current_model_type.empty();
-}
+}*/
 
 void try_start_competition(ros::ServiceClient& begin_client, ros::Rate* loop_rate)
 {
@@ -90,6 +95,7 @@ void try_start_competition(ros::ServiceClient& begin_client, ros::Rate* loop_rat
     }
 }
 
+/*
 void current_kit_location(ros::ServiceClient& kit_lookup_client)
 {
     if(is_current_object_known() || current_orders.size() == 0 || current_orders.front().kits.size() == 0)
@@ -100,11 +106,12 @@ void current_kit_location(ros::ServiceClient& kit_lookup_client)
     
     //ROS_INFO("Order has %d kits", current_orders.front().kits.size());
     
+    /*
     for(vector<osrf_gear::KitObject>::iterator current = current_orders.front().kits.front().objects.begin(); current != current_orders.front().kits.front().objects.end(); ++current)
     {
         //ROS_INFO("Kit types: %s", current->type.c_str());
-    }
-    
+    }*/
+    /*
     osrf_gear::Kit& current_kit = current_orders.front().kits.at(current_kit_index);
     current_model_type = current_kit.objects.at(current_kit_object_index).type;
     osrf_gear::GetMaterialLocations kit_lookup;
@@ -127,6 +134,22 @@ void current_kit_location(ros::ServiceClient& kit_lookup_client)
     {
         ROS_ERROR("Looking up kit location falied.");
     }
+}*/
+
+bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, ros::ServiceClient& kit_lookup_client)
+{
+    try_start_competition(begin_client, loop_rate);
+    if(has_started_competition)
+    {
+        return current_orders.size() != 0 && current_orders.front().kits.size() != 0;
+        /*
+        //ROS_INFO("Competition is started, looking up orders.");
+        current_kit_location(kit_lookup_client);
+        return is_current_object_known();
+        */
+    }
+
+    return false;
 }
 
 void print_pose(string message, geometry_msgs::Pose& pose)
@@ -206,19 +229,6 @@ void joint_state_listener(const sensor_msgs::JointState& joint_state)
         joint_state_map[joint_state.name[joint_index]] = joint_state.position[joint_index];
     }
     has_found_joint_states = true;
-}
-
-bool have_valid_orders(ros::ServiceClient& begin_client, ros::Rate* loop_rate, ros::ServiceClient& kit_lookup_client)
-{
-    try_start_competition(begin_client, loop_rate);
-    if(has_started_competition)
-    {
-        //ROS_INFO("Competition is started, looking up orders.");
-        current_kit_location(kit_lookup_client);
-        return is_current_object_known();
-    }
-
-    return false;
 }
 
 string remove_first_char(string string_val)
@@ -631,7 +641,40 @@ int main(int argc, char** argv)
     
     //Main loop
     while(ros::ok())
-    {    
+    {   
+        ROS_INFO("%d orders", current_orders.size());
+        for(osrf_gear::Order current_order : current_orders)
+        {
+            ROS_INFO("order contains %d kits", current_order.kits.size());
+            for(osrf_gear::Kit current_kit : current_order.kits)
+            {
+                ROS_INFO("Kit contains %d objects", current_kit.objects.size());
+                int kit_object_index = 0;
+                while(kit_object_index < current_kit.objects.size())
+                {
+                    osrf_gear::KitObject current_object = current_kit.objects.at(kit_object_index);
+                    ROS_INFO("Kit type: %s", current_object.type.c_str());
+                    //lookup / grab object
+                    bool was_successful = true;
+                    if(was_successful)
+                    {
+                        kit_object_index++;
+                    }
+                    else
+                    {
+                        ROS_WARN("Unable to find current kit object, trying again");
+                    }
+                    
+                    ros::spinOnce();
+                    loop_rate.sleep();
+                }
+            }       
+        }
+
+        ros::spinOnce();
+        loop_rate.sleep();
+
+        /*
         for(int logical_object_index = 0; logical_object_index < camera_data.models.size(); logical_object_index++)
         {
             geometry_msgs::Pose object_pose_local; 
@@ -644,7 +687,12 @@ int main(int argc, char** argv)
                 ros::Duration(0.5).sleep();
                 move_to_dropoff(trajectory_as, tfBuffer, vacuum_client);
             }
-        }
+        }*/
+    }
+
+        
+     
+        
         /*
         move_group.setPoseTarget(object_pose_world);
         //moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
@@ -674,8 +722,6 @@ int main(int argc, char** argv)
     }
     
     //process all callbacks
-    ros::spinOnce();
-    loop_rate.sleep();
     
     
     spinner.stop();
