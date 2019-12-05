@@ -501,7 +501,12 @@ void add_world_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& tr
     add_best_point_to_trajectory(trajectory_action, time_from_start);
 }
 
-void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, tf2_ros::Buffer &tfBuffer, ros::ServiceClient& grip_client)
+void move_to_dropoff(
+    actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as
+    , tf2_ros::Buffer &tfBuffer
+    , ros::ServiceClient& grip_client
+    , geometry_msgs::Pose& goal_pose
+)
 {
     double dropoff_orientation[6] {1.57, -1.57, 1.5, 3.022, -1.65, 0.0445};
     double dropoff_linear_position = 2.1;
@@ -516,10 +521,10 @@ void move_to_dropoff(actionlib::SimpleActionClient<control_msgs::FollowJointTraj
 
     ros::spinOnce();
 
-    geometry_msgs::Pose tray_pose_local; 
-    lookup_agv_tray_position(&tray_pose_local);
-    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, tray_pose_local, "logical_camera_over_agv1_frame");
-    print_pose("Agv kit pose in world", goal_pose.pose);
+    //geometry_msgs::Pose tray_pose_local; 
+    //lookup_agv_tray_position(&tray_pose_local);
+    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, goal_pose, "logical_camera_over_agv1_frame");
+    //print_pose("Agv kit pose in world", goal_pose.pose);
 
     goal_pose.pose.position.z += 0.1;
 
@@ -666,7 +671,7 @@ int main(int argc, char** argv)
                         
                         move_to_point_and_grip(goal_pose, trajectory_as, vacuum_client);
                         ros::Duration(0.5).sleep();
-                        move_to_dropoff(trajectory_as, tfBuffer, vacuum_client);
+                        move_to_dropoff(trajectory_as, tfBuffer, vacuum_client, target_pose);
 
                         was_successful = true;
                     }
