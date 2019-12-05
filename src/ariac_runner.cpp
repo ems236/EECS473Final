@@ -7,6 +7,7 @@
 #include "osrf_gear/GetMaterialLocations.h"
 #include "osrf_gear/LogicalCameraImage.h"
 #include "osrf_gear/VacuumGripperControl.h"
+#include "osrf_gear/AVGControl.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/Point.h"
 #include "geometry_msgs/Quaternion.h"
@@ -489,6 +490,13 @@ void set_suction(ros::ServiceClient& begin_client, bool is_enabled)
     begin_client.call(vaccuum_call);
 }
 
+void submit_kit(ros::ServiceClient& submit_client, string& kit_type)
+{
+    osrf_gear::AGVControl avgRequest;
+    avgRequest.request.kit_type = kit_type;
+    submit_client.call(avgRequest);
+}
+
 void add_world_point_to_trajectory(control_msgs::FollowJointTrajectoryAction& trajectory_action, const ros::Duration& time_from_start, geometry_msgs::PoseStamped& goal_pose)
 {
     inverse_desired_pos(goal_pose);
@@ -555,7 +563,10 @@ void move_to_dropoff(
     ROS_INFO("Moved to home");
 }
 
-void move_to_point_and_grip(geometry_msgs::PoseStamped& goal_pose, actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as, ros::ServiceClient& grip_client)
+void move_to_point_and_grip(
+    geometry_msgs::PoseStamped& goal_pose
+    , actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>& trajectory_as
+    , ros::ServiceClient& grip_client)
 {
     //offset so above
     goal_pose.pose.position.z += 0.3; 
@@ -601,6 +612,7 @@ int main(int argc, char** argv)
     ros::ServiceClient begin_client = node_handle.serviceClient<std_srvs::Trigger>("/ariac/start_competition");
     ros::ServiceClient kit_lookup_client = node_handle.serviceClient<osrf_gear::GetMaterialLocations>("/ariac/material_locations");
     ros::ServiceClient vacuum_client = node_handle.serviceClient<osrf_gear::VacuumGripperControl>("/ariac/gripper/control");
+    ros::ServiceClient agv1_submit_client = node_handle.serviceClient<osrf_gear::AGVControl>("/ariac/agv1");
 
     ros::Subscriber order_subscriber = node_handle.subscribe("/ariac/orders", 200, new_order_callback);
     ros::Subscriber logical_camera_subscriber = node_handle.subscribe("/ariac/logical_camera", 200, camera_callback);
@@ -696,7 +708,11 @@ int main(int argc, char** argv)
                     ros::spinOnce();
                     loop_rate.sleep();
                 }
-            }       
+
+                submit_kit(agv1_submit_client, current_kit.kit_type);
+            }
+            
+              
         }
 
         ros::spinOnce();
