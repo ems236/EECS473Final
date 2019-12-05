@@ -37,6 +37,7 @@
 using namespace std;
 
 bool has_started_competition = false;
+bool is_gripper_attached = false;
 vector<osrf_gear::Order> current_orders;
 osrf_gear::LogicalCameraImage camera_data;
 osrf_gear::LogicalCameraImage agv_camera_data;
@@ -210,6 +211,11 @@ void camera_callback(const osrf_gear::LogicalCameraImage& camera_info)
 void agv_camera_callback(const osrf_gear::LogicalCameraImage& camera_info)
 {
     agv_camera_data = camera_info;
+}
+
+void gripper_state_listener(const osrf_gear::VacuumGripperState& gripper_state)
+{
+    is_gripper_attached = gripper_state.attached;
 }
 
 bool lookup_agv_tray_position(geometry_msgs::Pose* pose)
@@ -618,6 +624,7 @@ int main(int argc, char** argv)
     ros::Subscriber logical_camera_subscriber = node_handle.subscribe("/ariac/logical_camera", 200, camera_callback);
     ros::Subscriber agv_logical_camera_subscriber = node_handle.subscribe("/ariac/logical_camera_over_agv1", 200, agv_camera_callback);
     ros::Subscriber joint_state_subscriber = node_handle.subscribe("/ariac/joint_states", 10, joint_state_listener);
+    ros::Subscriber gripper_state_subscriber = node_handle.subscribe("/ariac/gripper/state", 10, gripper_state_listener);
     
     ros::Publisher trajectory_publisher = node_handle.advertise<trajectory_msgs::JointTrajectory>("ariac/arm/command", 200);
 
@@ -690,9 +697,13 @@ int main(int argc, char** argv)
                         
                         move_to_point_and_grip(goal_pose, trajectory_as, vacuum_client);
                         ros::Duration(0.5).sleep();
-                        move_to_dropoff(trajectory_as, tfBuffer, vacuum_client, current_object.pose);
 
-                        was_successful = true;
+                        ros::spinOnce();
+                        if(is_gripper_attached)
+                        {
+                            move_to_dropoff(trajectory_as, tfBuffer, vacuum_client, current_object.pose);
+                            was_successful = true;
+                        }                
                     }
                     //lookup / grab object
                     
