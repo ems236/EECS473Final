@@ -671,7 +671,7 @@ int main(int argc, char** argv)
                         
                         move_to_point_and_grip(goal_pose, trajectory_as, vacuum_client);
                         ros::Duration(0.5).sleep();
-                        move_to_dropoff(trajectory_as, tfBuffer, vacuum_client, target_pose);
+                        move_to_dropoff(trajectory_as, tfBuffer, vacuum_client, current_object.pose);
 
                         was_successful = true;
                     }
