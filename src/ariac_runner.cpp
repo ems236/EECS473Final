@@ -532,7 +532,7 @@ void move_to_dropoff(
     initialize_trajectory(over_tray_joint_trajectory_as);
     add_world_point_to_trajectory(over_tray_joint_trajectory_as, ros::Duration(2.0), tray_home_pose);
 
-    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, target_pose, "logical_camera_over_agv1_frame");
+    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, target_pose, "agv1_load_point_frame");
     //print_pose("Agv kit pose in world", goal_pose.pose);
     goal_pose.pose.position.z += 0.1;
     add_world_point_to_trajectory(over_tray_joint_trajectory_as, ros::Duration(4.0), goal_pose);
