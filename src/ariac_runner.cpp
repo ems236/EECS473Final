@@ -688,11 +688,7 @@ int main(int argc, char** argv)
                 move_to_dropoff(trajectory_as, tfBuffer, vacuum_client);
             }
         }*/
-    }
-
-        
-     
-        
+                
         /*
         move_group.setPoseTarget(object_pose_world);
         //moveit::planning_interface::MoveGroupInterface::Plan movement_plan;
