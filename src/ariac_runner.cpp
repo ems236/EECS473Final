@@ -521,16 +521,23 @@ void move_to_dropoff(
 
     ros::spinOnce();
 
-    //geometry_msgs::Pose tray_pose_local; 
-    //lookup_agv_tray_position(&tray_pose_local);
-    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, target_pose, "logical_camera_over_agv1_frame");
+    geometry_msgs::Pose tray_pose_local; 
+    lookup_agv_tray_position(&tray_pose_local);
+    geometry_msgs::PoseStamped tray_home_pose = logical_camera_to_base_link(tfBuffer, tray_pose_local, "logical_camera_over_agv1_frame");
     //print_pose("Agv kit pose in world", goal_pose.pose);
 
-    goal_pose.pose.position.z += 0.1;
+    tray_home_pose.pose.position.z += 0.1;
 
     control_msgs::FollowJointTrajectoryAction over_tray_joint_trajectory_as;
     initialize_trajectory(over_tray_joint_trajectory_as);
-    add_world_point_to_trajectory(over_tray_joint_trajectory_as, ros::Duration(2.0), goal_pose);
+    add_world_point_to_trajectory(over_tray_joint_trajectory_as, ros::Duration(2.0), tray_home_pose);
+
+    geometry_msgs::PoseStamped goal_pose = logical_camera_to_base_link(tfBuffer, target_pose, "logical_camera_over_agv1_frame");
+    //print_pose("Agv kit pose in world", goal_pose.pose);
+    goal_pose.pose.position.z += 0.1;
+    add_world_point_to_trajectory(over_tray_joint_trajectory_as, ros::Duration(4.0), goal_pose);
+
+
     state = trajectory_as.sendGoalAndWait(over_tray_joint_trajectory_as.action_goal.goal, ros::Duration(10.0), ros::Duration(3.0));
     ROS_INFO("Action Server returned with status: [%i] %s", state.state_, state.toString().c_str());
     ROS_INFO("Moved to dropoff");
