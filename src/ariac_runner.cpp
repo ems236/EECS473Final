@@ -7,6 +7,7 @@
 #include "osrf_gear/GetMaterialLocations.h"
 #include "osrf_gear/LogicalCameraImage.h"
 #include "osrf_gear/VacuumGripperControl.h"
+#include "osrf_gear/VacuumGripperState.h"
 #include "osrf_gear/AGVControl.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/Point.h"
